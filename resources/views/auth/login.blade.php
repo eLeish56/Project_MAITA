@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" style="min-width: 100vh !important;">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{{ config('APP_NAME', 'Teaching factory') }}</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png">
+  <link href="/dist/css/style.min.css" rel="stylesheet">
+  <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+  <script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+  </script>
+</head>
+
+<body>
+  <!-- ============================================================== -->
+  <!-- Preloader - style you can find in spinners.css -->
+  <!-- ============================================================== -->
+  <div class="preloader">
+    <div class="lds-ripple">
+      <div class="lds-pos"></div>
+      <div class="lds-pos"></div>
+    </div>
+  </div>
+
+  <div class="preloader" style="display: none; background: transparent;" id="preloader">
+    <div class="lds-ripple">
+      <div class="lds-pos"></div>
+      <div class="lds-pos"></div>
+    </div>
+  </div>
+  <div class="main-wrapper mt-5">
+    <!-- ============================================================== -->
+    <!-- Login box.scss -->
+    <!-- ============================================================== -->
+    <div class="pt-5 pb-2"></div>
+    <div class="auth-wrapper d-flex no-block justify-content-center align-items-center pt-5">
+      <div class="auth-box border-top border-secondary bg-dark p-4">
+        <div id="loginform">
+          <div class="text-center pt-3 pb-3">
+            <span class="db">
+              <img src="assets/images/icon.png" alt="logo" class="light-logo" />
+              <b class="text-white">TEACHING FACTORY</b>
+            </span>
+          </div>
+          <!-- Form -->
+                    <form class="form-horizontal mt-3" id="loginform" action="{{ route('login') }}" method="POST">
+            @csrf
+            @if ($errors->any())
+              <div class="alert alert-danger">
+                <ul>
+                  @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              </div>
+            @endif
+            <div class="row">
+              <div class="col-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text bg-success text-white h-100" id="basic-addon1"><i
+                        class="mdi mdi-account fs-4"></i></span>
+                  </div>
+                  <input type="text" class="form-control form-control-lg @error('username') is-invalid @enderror"
+                    placeholder="Email atau Username" name="username" value="{{ old('username') }}"
+                    aria-label="Username" aria-describedby="basic-addon1" required autofocus />
+                  @error('username')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                  @enderror
+                </div>
+                <div class="input-group mt-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text bg-warning text-white h-100" id="basic-addon2">
+                      <i class="mdi mdi-lock fs-4"></i>
+                    </span>
+                  </div>
+                  <input type="password" class="form-control form-control-lg @error('error') is-invalid @enderror"
+                    placeholder="Password" name="password" id="password" aria-label="Password" aria-describedby="basic-addon1"
+                    required="" />
+                  <div class="input-group-append">
+                    <span class="input-group-text h-100" style="cursor: pointer;" onclick="togglePassword('password', 'passIcon')">
+                      <i class="mdi mdi-eye fs-4" id="passIcon"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div class="col-12">
+                <div class="row mt-3">
+            <span class="text-sm text-gray-600">Belum punya akun?</span>
+              <a href="{{ route('register') }}"
+                class="inline-block px-4 py-2 mt-2 rounded-lg border hover:bg-gray-50 transition">
+                  Buat Akun Customer
+              </a>
+          </div>
+                <div class="form-group">
+                  <button class="btn btn-success float-end text-white" type="submit">
+                    Login
+                  </button>
+                </div>
+              </div>
+              <div class="mt-4 text-center">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(".preloader").fadeOut();
+    
+    // Toggle password visibility
+    function togglePassword(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('mdi-eye');
+        icon.classList.add('mdi-eye-off');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('mdi-eye-off');
+        icon.classList.add('mdi-eye');
+      }
+      
+      // Add animation
+      icon.classList.add('animate__animated', 'animate__flipInY');
+      setTimeout(() => {
+        icon.classList.remove('animate__animated', 'animate__flipInY');
+      }, 1000);
+    }
+  </script>
+</body>
+
+</html>
