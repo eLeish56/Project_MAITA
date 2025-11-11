@@ -3,42 +3,48 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Tampilkan halaman permintaan reset password.
      */
-    public function create(): View
+    public function create()
     {
+        // Pastikan view yang digunakan sesuai dengan desain Anda
         return view('auth.forgot-password');
     }
 
     /**
-     * Handle an incoming password reset link request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Kirim link reset password ke email yang diminta.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
             'email' => ['required', 'email'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
+        // Cek bahwa email tersebut milik user dengan role 'customer'
+        $user = User::where('email', $request->email)
+                    ->where('role', 'customer')
+                    ->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Kami tidak menemukan pelanggan dengan email tersebut.',
+            ]);
+        }
+
+        // Mengirimkan link reset password
         $status = Password::sendResetLink(
-            $request->only('email')
+            ['email' => $request->email]
         );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                            ->withErrors(['email' => __($status)]);
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', __($status))
+            : back()->withErrors(['email' => __($status)]);
     }
 }

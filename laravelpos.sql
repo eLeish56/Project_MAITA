@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 10, 2025 at 11:30 PM
+-- Generation Time: Nov 11, 2025 at 12:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,7 +56,36 @@ INSERT INTO `absences` (`id`, `user_id`, `login_at`, `logout_at`, `created_at`, 
 (95, 12, '20:28:00', '20:40:00', '2025-11-10 13:28:20', '2025-11-10 13:40:49'),
 (96, 17, '20:41:00', '21:12:00', '2025-11-10 13:41:06', '2025-11-10 14:12:52'),
 (97, 12, '21:12:00', '21:19:00', '2025-11-10 14:12:59', '2025-11-10 14:19:42'),
-(98, 17, '21:19:00', NULL, '2025-11-10 14:19:48', '2025-11-10 14:19:48');
+(98, 17, '21:19:00', '05:31:00', '2025-11-10 14:19:48', '2025-11-10 22:31:11'),
+(99, 12, '05:31:00', '05:31:00', '2025-11-10 22:31:16', '2025-11-10 22:31:46'),
+(100, 14, '05:31:00', '05:53:00', '2025-11-10 22:31:55', '2025-11-10 22:53:55'),
+(101, 17, '05:53:00', '05:54:00', '2025-11-10 22:53:59', '2025-11-10 22:54:13'),
+(102, 12, '05:54:00', '06:32:00', '2025-11-10 22:54:17', '2025-11-10 23:32:24'),
+(103, 12, '06:32:00', NULL, '2025-11-10 23:32:30', '2025-11-10 23:32:30');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cache`
+--
+
+CREATE TABLE `cache` (
+  `key` varchar(255) NOT NULL,
+  `value` mediumtext NOT NULL,
+  `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cache_locks`
+--
+
+CREATE TABLE `cache_locks` (
+  `key` varchar(255) NOT NULL,
+  `owner` varchar(255) NOT NULL,
+  `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -148,6 +177,13 @@ CREATE TABLE `goods_receipts` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `goods_receipts`
+--
+
+INSERT INTO `goods_receipts` (`id`, `purchase_order_id`, `gr_number`, `receipt_date`, `received_by`, `status`, `notes`, `receipt_document`, `created_at`, `updated_at`) VALUES
+(31, 38, 'GR-0001/11/2025', '2025-11-11', 12, 'completed', NULL, 'receipts/UpaK7kcuXf5eS5kUAyUobHXNNrzFjdAczjHeuSQD.png', '2025-11-10 22:55:46', '2025-11-10 22:55:46');
+
 -- --------------------------------------------------------
 
 --
@@ -170,6 +206,14 @@ CREATE TABLE `goods_receipt_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `goods_receipt_items`
+--
+
+INSERT INTO `goods_receipt_items` (`id`, `goods_receipt_id`, `item_id`, `product_name`, `unit`, `quantity_received`, `remaining_quantity`, `expiry_date`, `lot_code`, `batch_number`, `expiry_status`, `notes`, `created_at`, `updated_at`) VALUES
+(43, 31, NULL, 'Cairan Pembersih Lantai Wipol 750ML', 'box', 5, 5, '2030-06-11', NULL, 'CAI251111001', 'safe', NULL, '2025-11-10 22:55:46', '2025-11-10 22:55:46'),
+(44, 31, NULL, 'Cairan Pembersih Lantai Porselen Vixal 750M', 'box', 5, 5, '2028-11-16', NULL, 'CAI251111002', 'safe', NULL, '2025-11-10 22:55:46', '2025-11-10 22:55:46');
 
 -- --------------------------------------------------------
 
@@ -208,6 +252,14 @@ CREATE TABLE `inventory_movements` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `inventory_movements`
+--
+
+INSERT INTO `inventory_movements` (`id`, `goods_receipt_item_id`, `type`, `qty`, `ref_type`, `ref_id`, `note`, `created_at`, `updated_at`) VALUES
+(25, 43, 'in', 5.00, 'GR', '31', 'Penerimaan barang dari GR #GR-0001/11/2025', '2025-11-10 22:55:46', '2025-11-10 22:55:46'),
+(26, 44, 'in', 5.00, 'GR', '31', 'Penerimaan barang dari GR #GR-0001/11/2025', '2025-11-10 22:55:46', '2025-11-10 22:55:46');
 
 -- --------------------------------------------------------
 
@@ -264,6 +316,13 @@ CREATE TABLE `invoices` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `invoices`
+--
+
+INSERT INTO `invoices` (`id`, `purchase_order_id`, `invoice_number`, `invoice_date`, `due_date`, `amount`, `status`, `invoice_file`, `payment_proof`, `notes`, `created_at`, `updated_at`) VALUES
+(12, 38, '12332123134', '2025-11-11', '2025-12-11', 110000.00, 'paid', 'invoices/vkxyBv3gIf9UWcqhEWGnRkAL0zE0LiAqv6YgOAps.png', 'payment_proofs/dNTESUzkh6H9jQDyMrV6JGpeDu9Pdvxgpi1MnD2T.png', NULL, '2025-11-10 22:56:02', '2025-11-10 22:56:02');
 
 -- --------------------------------------------------------
 
@@ -403,7 +462,6 @@ CREATE TABLE `migrations` (
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '0001_01_01_000000_create_users_table', 1),
-(2, '0001_01_01_000001_create_cache_table', 1),
 (3, '0001_01_01_000002_create_jobs_table', 1),
 (4, '2024_05_21_174125_create_categories_table', 1),
 (5, '2024_05_21_174227_create_customers_table', 1),
@@ -439,7 +497,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (35, '2025_11_07_232719_create_cart_items_table', 6),
 (36, '0001_01_01_000002_create_inventory_movements_table', 7),
 (37, '2025_11_07_000001_modify_item_id_in_goods_receipt_items', 8),
-(38, '2025_11_07_231925_create_cart_items_table', 9);
+(38, '2025_11_07_231925_create_cart_items_table', 9),
+(39, '0001_01_01_000001_create_cache_table', 10);
 
 -- --------------------------------------------------------
 
@@ -492,6 +551,14 @@ CREATE TABLE `purchase_orders` (
   `prices_confirmed` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `purchase_orders`
+--
+
+INSERT INTO `purchase_orders` (`id`, `po_number`, `supplier_id`, `purchase_request_id`, `po_date`, `status`, `total_amount`, `supplier_confirmed`, `supplier_notes`, `invoice_image_path`, `created_by`, `created_at`, `updated_at`, `prices_confirmed`) VALUES
+(37, 'PO/2025/11/0001', 29, 33, '2025-11-11', 'sent', 200000.00, 0, NULL, NULL, 14, '2025-11-10 22:32:07', '2025-11-10 22:40:53', 1),
+(38, 'PO/2025/11/0002', 27, 34, '2025-11-11', 'completed', 110000.00, 0, NULL, NULL, 12, '2025-11-10 22:55:07', '2025-11-10 22:56:02', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -531,7 +598,11 @@ INSERT INTO `purchase_order_items` (`id`, `purchase_order_id`, `item_id`, `produ
 (85, 34, NULL, 'yougurt', 10, 'box', 12000.00, NULL, '2025-11-09 22:09:24', '2025-11-09 22:10:22'),
 (86, 35, NULL, 'Sunlight Sabun Cuci Piring Sunlight Lime 650ml', 10, 'pcs', 20000.00, NULL, '2025-11-10 13:41:29', '2025-11-10 13:42:33'),
 (87, 36, NULL, 'Post It Sign Here (Arrow) Tom dan Jerry', 20, 'pcs', 20000.00, NULL, '2025-11-10 14:20:04', '2025-11-10 14:20:26'),
-(88, 36, NULL, 'Ballpoint K-1 Kenko 1 Pack', 50, 'box', 50000.00, NULL, '2025-11-10 14:20:04', '2025-11-10 14:20:26');
+(88, 36, NULL, 'Ballpoint K-1 Kenko 1 Pack', 50, 'box', 50000.00, NULL, '2025-11-10 14:20:04', '2025-11-10 14:20:26'),
+(89, 37, NULL, 'Note BANTEX FLEXI TAB 5 NEON COLOUR', 15, 'pcs', 5000.00, NULL, '2025-11-10 22:32:07', '2025-11-10 22:40:42'),
+(90, 37, NULL, 'Lem Stick UHU 8 ram', 25, 'box', 5000.00, NULL, '2025-11-10 22:32:07', '2025-11-10 22:40:42'),
+(91, 38, NULL, 'Cairan Pembersih Lantai Wipol 750ML', 5, 'box', 10000.00, NULL, '2025-11-10 22:55:07', '2025-11-10 22:55:22'),
+(92, 38, NULL, 'Cairan Pembersih Lantai Porselen Vixal 750M', 5, 'box', 12000.00, NULL, '2025-11-10 22:55:07', '2025-11-10 22:55:22');
 
 -- --------------------------------------------------------
 
@@ -563,7 +634,8 @@ CREATE TABLE `purchase_requests` (
 --
 
 INSERT INTO `purchase_requests` (`id`, `pr_number`, `requested_by`, `request_date`, `supplier_id`, `status`, `approved_by`, `approved_at`, `approval_status`, `approval_notes`, `rejection_reason`, `validation_document_path`, `is_validated`, `description`, `created_at`, `updated_at`) VALUES
-(33, 'PR-0001/11/2025', 17, '2025-11-11', 29, 'pending', NULL, NULL, 'pending', NULL, NULL, NULL, 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:29:26');
+(33, 'PR-0001/11/2025', 17, '2025-11-11', 29, 'po_created', 12, '2025-11-10 22:31:40', 'approved', NULL, NULL, NULL, 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:32:07'),
+(34, 'PR-0002/11/2025', 12, '2025-11-11', 27, 'po_created', 12, '2025-11-10 22:54:56', 'approved', NULL, NULL, NULL, 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:55:07');
 
 -- --------------------------------------------------------
 
@@ -589,7 +661,9 @@ CREATE TABLE `purchase_request_items` (
 
 INSERT INTO `purchase_request_items` (`id`, `purchase_request_id`, `product_name`, `quantity`, `unit`, `current_stock`, `notes`, `created_at`, `updated_at`) VALUES
 (77, 33, 'Note BANTEX FLEXI TAB 5 NEON COLOUR', 15, 'pcs', 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:29:26'),
-(78, 33, 'Lem Stick UHU 8 ram', 25, 'box', 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:29:26');
+(78, 33, 'Lem Stick UHU 8 ram', 25, 'box', 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:29:26'),
+(79, 34, 'Cairan Pembersih Lantai Wipol 750ML', 5, 'box', 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:54:49'),
+(80, 34, 'Cairan Pembersih Lantai Porselen Vixal 750M', 5, 'box', 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:54:49');
 
 -- --------------------------------------------------------
 
@@ -611,7 +685,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('NWCCO5N8IUtUhVnXUjs7BMFva0wI7IcsHGFJJm99', 17, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiYURvNm12T0p1MHFjMkZ0NzRlOUZ1b1I3ZTdHTEJWTWJDdm9SbFZLcSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9uZXctcHVyY2hhc2Utb3JkZXJzIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTc7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1762813775);
+('B6l2Jn723QCUH2wpect0eyDvIj05wevBr7PRDpxP', 12, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoieVFSaTZMdUV6Y1ZPbjdzTWQzSTRvWjVRb1Q1b3NUSWpRMHNMdnpOYSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hcGkvbW9udGhseS1pbmNvbWU/eWVhcj0yMDI1Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTI7fQ==', 1762817552);
 
 -- --------------------------------------------------------
 
@@ -905,6 +979,18 @@ ALTER TABLE `absences`
   ADD KEY `absences_user_id_foreign` (`user_id`);
 
 --
+-- Indexes for table `cache`
+--
+ALTER TABLE `cache`
+  ADD PRIMARY KEY (`key`);
+
+--
+-- Indexes for table `cache_locks`
+--
+ALTER TABLE `cache_locks`
+  ADD PRIMARY KEY (`key`);
+
+--
 -- Indexes for table `carts`
 --
 ALTER TABLE `carts`
@@ -1136,7 +1222,7 @@ ALTER TABLE `wholesale_prices`
 -- AUTO_INCREMENT for table `absences`
 --
 ALTER TABLE `absences`
-  MODIFY `id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
+  MODIFY `id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 
 --
 -- AUTO_INCREMENT for table `carts`
@@ -1166,13 +1252,13 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `goods_receipts`
 --
 ALTER TABLE `goods_receipts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `goods_receipt_items`
 --
 ALTER TABLE `goods_receipt_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `inventory_batches`
@@ -1184,7 +1270,7 @@ ALTER TABLE `inventory_batches`
 -- AUTO_INCREMENT for table `inventory_movements`
 --
 ALTER TABLE `inventory_movements`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `inventory_records`
@@ -1202,7 +1288,7 @@ ALTER TABLE `inventory_settings`
 -- AUTO_INCREMENT for table `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `items`
@@ -1232,7 +1318,7 @@ ALTER TABLE `marketplace_order_items`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `payment_methods`
@@ -1244,25 +1330,25 @@ ALTER TABLE `payment_methods`
 -- AUTO_INCREMENT for table `purchase_orders`
 --
 ALTER TABLE `purchase_orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `purchase_order_items`
 --
 ALTER TABLE `purchase_order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
 
 --
 -- AUTO_INCREMENT for table `purchase_requests`
 --
 ALTER TABLE `purchase_requests`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `purchase_request_items`
 --
 ALTER TABLE `purchase_request_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- AUTO_INCREMENT for table `stock_movement_analyses`

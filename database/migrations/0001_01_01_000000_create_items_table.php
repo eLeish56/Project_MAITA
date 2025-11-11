@@ -50,7 +50,3 @@ return new class extends Migration
         Schema::dropIfExists('items');
     }
 };
-
-<?php
-$res = DB::select('SHOW CREATE TABLE inventory_movements');
-print_r($res[0]);

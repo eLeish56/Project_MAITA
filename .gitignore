@@ -10,3 +10,9 @@
 .DS_Store
 *.log
 NUL
+NUL
+/vendor/
+/node_modules/
+/storage/
+.env
+*.log
