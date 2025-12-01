@@ -252,8 +252,13 @@ Route::get('/', function () {
         Route::get('/get-invoice', [TransactionController::class, 'get_invoice'])->name('transaction.get_invoice');
         Route::get('/get-items', [TransactionController::class, 'get_items'])->name('transaction.get_items');
         Route::post('/save', [TransactionController::class, 'save_transaction'])->name('transaction.save');
+        Route::get('/{transaction}/print-receipt', [TransactionController::class, 'printReceipt'])->name('transaction.print-receipt');
     });
     Route::resource('transaction', TransactionController::class)->except(['create','edit','update']);
+
+    // API endpoints
+    Route::get('/api/transaction-by-invoice/{invoice}', [TransactionController::class, 'getTransactionByInvoice']);
+    Route::get('/api/last-transaction', [TransactionController::class, 'getLastTransaction']);
 
     /*
      * INVENTORY
@@ -311,6 +316,13 @@ Route::get('/', function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     /*
+     * ITEM ENDPOINTS for POS
+     */
+    Route::prefix('inventory')->middleware(IsCashier::class)->group(function () {
+        Route::get('/item/{item}', [ItemController::class, 'show']);
+    });
+
+    /*
      * CART internal POS
      */
     Route::prefix('cart')->middleware(IsCashier::class)->group(function () {
@@ -346,6 +358,10 @@ Route::get('/', function () {
         Route::post('/{po}/confirm', [NewPurchaseOrderController::class, 'confirm'])->name('confirm');
         Route::post('/{purchaseOrder}/create-gr', [GoodsReceiptController::class, 'createGR'])->name('create-gr');
         Route::post('/{po}/create-invoice', [NewPurchaseOrderController::class, 'createInvoice'])->name('create-invoice');
+        
+        // Invoice file download routes
+        Route::get('/invoice/{invoice}/download', [NewPurchaseOrderController::class, 'downloadInvoiceFile'])->name('invoice.download');
+        Route::get('/invoice/{invoice}/payment-proof', [NewPurchaseOrderController::class, 'downloadPaymentProof'])->name('payment-proof.download');
         
         // Price management routes
         Route::get('/{po}/prices/edit', [NewPurchaseOrderController::class, 'editPrices'])->name('prices.edit');

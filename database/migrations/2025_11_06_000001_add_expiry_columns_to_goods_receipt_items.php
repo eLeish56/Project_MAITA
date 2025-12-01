@@ -8,17 +8,15 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('goods_receipt_items', function (Blueprint $table) {
-            $table->string('batch_number')->nullable()->after('expiry_date');
-            $table->string('expiry_status')->nullable()->after('batch_number'); // 'safe', 'warning', 'expired'
-            $table->integer('remaining_quantity')->after('quantity_received')->default(0);
-        });
+        // Kolom batch_number, expiry_status, dan remaining_quantity
+        // sudah ada di tabel goods_receipt_items sejak dibuat.
+        // Migration ini tidak perlu melakukan apa-apa.
+        // (Dipertahankan untuk consistency dengan migration history)
     }
 
     public function down()
     {
-        Schema::table('goods_receipt_items', function (Blueprint $table) {
-            $table->dropColumn(['batch_number', 'expiry_status', 'remaining_quantity']);
-        });
+        // Tidak ada yang perlu di-rollback karena kolom sudah ada
+        // di tabel goods_receipt_items sejak awal pembuatan
     }
 };

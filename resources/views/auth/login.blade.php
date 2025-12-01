@@ -9,7 +9,7 @@
     <meta name="robots" content="noindex,nofollow">
     <!-- CSRF token for AJAX requests -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Teaching factory') }}</title>
+    <title>TEACHING FACTORY</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png">
     <!-- Custom CSS -->

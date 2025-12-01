@@ -261,15 +261,15 @@
                                                     </td>
                                                     <td>
                                                         @if($invoice->invoice_file)
-                                                            <a href="{{ Storage::url($invoice->invoice_file) }}" class="btn btn-sm btn-info" target="_blank">
-                                                                <i class="fas fa-file"></i>
+                                                            <a href="{{ route('new-purchase-orders.invoice.download', $invoice->id) }}" class="btn btn-sm btn-info" title="Download Invoice">
+                                                                <i class="fas fa-file-pdf"></i> Invoice
                                                             </a>
                                                         @else
                                                             <span class="badge bg-warning">Tidak ada file</span>
                                                         @endif
                                                         @if($invoice->payment_proof)
-                                                            <a href="{{ Storage::url($invoice->payment_proof) }}" class="btn btn-sm btn-secondary ms-1" target="_blank">
-                                                                <i class="fas fa-receipt"></i>
+                                                            <a href="{{ route('new-purchase-orders.payment-proof.download', $invoice->id) }}" class="btn btn-sm btn-secondary ms-1" title="Download Bukti Pembayaran">
+                                                                <i class="fas fa-receipt"></i> Bukti Pembayaran
                                                             </a>
                                                         @endif
                                                     </td>

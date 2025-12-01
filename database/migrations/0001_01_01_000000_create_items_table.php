@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained('categories');
+            // FIX: category_id tanpa constraint dulu (categories dibuat kemudian)
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->string('code')->unique();
             $table->string('name');
             $table->decimal('cost_price', 12, 2);
@@ -49,4 +50,4 @@ return new class extends Migration
         Schema::dropIfExists('inventory_batches');
         Schema::dropIfExists('items');
     }
-};
+}; 

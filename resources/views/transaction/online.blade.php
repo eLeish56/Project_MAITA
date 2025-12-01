@@ -81,6 +81,73 @@
     </div>
 
     {{-- Modal untuk menampilkan detail pesanan --}}
+    {{-- Modal Detail Pesanan --}}
+    <div class="modal fade" id="transaction_detail_modal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalLabel">Detail Pesanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- Content will be loaded here --}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Cetak Nota Transaksi Online - Selaras dengan Design --}}
+    <div class="modal fade" id="print_receipt_modal_online" tabindex="-1" aria-labelledby="printReceiptLabelOnline" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg">
+                <!-- Header dengan Gradient -->
+                <div class="modal-header bg-primary text-white border-0 pb-4">
+                    <div class="w-100 text-center">
+                        <h5 class="modal-title" id="printReceiptLabelOnline">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Transaksi Berhasil!
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; right: 15px; top: 15px;"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body text-center py-4">
+                    <!-- Success Icon Animation -->
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background-color: #e7f5ff; border-radius: 50%;">
+                            <i class="fas fa-check-circle text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Message -->
+                    <div class="mt-4">
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-2" style="color: #0d6efd;"></i>
+                            <span>Apakah Anda ingin mencetak nota untuk transaksi ini?</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer bg-light border-0 pt-3 pb-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal" style="padding: 8px 24px;">
+                        <i class="fas fa-times me-2"></i>
+                        <span>Tidak, Lewati</span>
+                    </button>
+                    <button type="button" class="btn btn-primary rounded-3" id="print_receipt_btn_online" style="padding: 8px 24px;">
+                        <i class="fas fa-print me-2"></i>
+                        <span>Ya, Cetak Nota</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
     <script>
@@ -95,6 +162,18 @@
                 ]
             });
             window.tableMarketplaceOrders = mpTable;
+
+            // Handle print receipt button
+            $('#print_receipt_btn_online').on('click', function() {
+                var transactionId = $(this).attr('data-transaction-id');
+                window.open('/transaction/' + transactionId + '/print-receipt', '_blank');
+                $('#print_receipt_modal_online').modal('hide');
+            });
+
+            // Jika user menutup modal tanpa cetak
+            $('#print_receipt_modal_online').on('hidden.bs.modal', function() {
+                window.tableMarketplaceOrders.draw();
+            });
         });
 
         /**
@@ -136,16 +215,25 @@
                 data: {},
                 success: function(res) {
                     toastr.success('Pesanan berhasil diproses');
+                    
+                    // Tampilkan modal cetak nota
+                    if (res.transaction_id) {
+                        $('#print_receipt_btn_online').attr('data-transaction-id', res.transaction_id);
+                        $('#print_receipt_modal_online').modal('show');
+                    }
+                    
                     // Reset tombol ke keadaan awal
                     $(btn).prop('disabled', false)
                           .html('<i class="fas fa-check"></i> Proses');
-                    // Refresh tabel
-                    window.tableMarketplaceOrders.draw();
-                    // Hapus baris dari tabel jika perlu
-                    window.tableMarketplaceOrders
-                        .row($(btn).closest('tr'))
-                        .remove()
-                        .draw();
+                    
+                    // Refresh tabel setelah 2 detik
+                    setTimeout(() => {
+                        window.tableMarketplaceOrders.draw();
+                        window.tableMarketplaceOrders
+                            .row($(btn).closest('tr'))
+                            .remove()
+                            .draw();
+                    }, 2000);
                 },
                 error: function(xhr) {
                     // Reset tombol ke keadaan awal saat error

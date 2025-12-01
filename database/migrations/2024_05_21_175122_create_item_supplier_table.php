@@ -11,17 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('items', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->integer('cost_price');
-            $table->integer('selling_price');
-            $table->integer('stock')->default(0);
-            $table->string('picture')->default('default.png');
-            $table->timestamps();
-        });
+        // Tabel items sudah dibuat di 0001_01_01_000000_create_items_table.php
+        // File ini hanya membuat suppliers dan item_supplier pivot table
+        
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -50,8 +42,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('items');
-        Schema::dropIfExists('suppliers');
         Schema::dropIfExists('item_supplier');
+        Schema::dropIfExists('suppliers');
+        // items akan dihapus oleh migration 0001_01_01_000000_create_items_table.php
     }
 };

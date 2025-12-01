@@ -141,82 +141,115 @@ class PurchaseReportController extends Controller
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Laporan Pembelian');
 
-            // Style header simple hitam putih
-            $sheet->setCellValue('A1', 'LAPORAN PEMBELIAN TEACHING FACTORY');
-            $sheet->mergeCells('A1:I1');
-            $sheet->getStyle('A1')->applyFromArray([
+            $row = 1;
+
+            // Header Utama - Judul Laporan
+            $sheet->setCellValue('A' . $row, 'LAPORAN PEMBELIAN TEACHING FACTORY SMK MUHAMMADIYAH 1 PALEMBANG');
+            $sheet->mergeCells('A' . $row . ':I' . $row);
+            $sheet->getStyle('A' . $row)->applyFromArray([
                 'font' => [
                     'bold' => true,
-                    'size' => 16
+                    'size' => 14
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
                     'vertical' => Alignment::VERTICAL_CENTER
-                ],
-                'borders' => [
-                    'bottom' => [
-                        'borderStyle' => Border::BORDER_MEDIUM
-                    ]
                 ]
             ]);
-            
-            // Set tinggi baris judul
-            $sheet->getRowDimension(1)->setRowHeight(35);
+            $sheet->getRowDimension($row)->setRowHeight(28);
+            $row++;
 
-            // Set period
-            // Informasi periode style hitam putih
+            // Alamat Sekolah
+            $sheet->setCellValue('A' . $row, 'Jl. Balayudha, RT.16/RW.4, Ario Kemuning, Kec. Kemuning, Kota Palembang, Sumatera Selatan 30128 | Telepon: (0711) 414662');
+            $sheet->mergeCells('A' . $row . ':I' . $row);
+            $sheet->getStyle('A' . $row)->applyFromArray([
+                'font' => [
+                    'size' => 10
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true
+                ]
+            ]);
+            $sheet->getRowDimension($row)->setRowHeight(22);
+            $row++;
+
+            // Periode Laporan
             if ($request->filled(['start_date', 'end_date'])) {
-                $sheet->setCellValue('A2', 'Periode: ' . Carbon::parse($request->start_date)->format('d/m/Y') . ' - ' . Carbon::parse($request->end_date)->format('d/m/Y'));
-                $sheet->mergeCells('A2:I2');
-                $sheet->getStyle('A2')->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                        'size' => 11
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER
-                    ]
-                ]);
-                $sheet->getRowDimension(2)->setRowHeight(25);
+                $sheet->setCellValue('A' . $row, 'Periode: ' . Carbon::parse($request->start_date)->format('d/m/Y') . ' - ' . Carbon::parse($request->end_date)->format('d/m/Y'));
+            } else {
+                $sheet->setCellValue('A' . $row, 'Periode: Semua Data');
             }
-            
-            // Tambahkan spasi kosong sebelum header kolom
-            $sheet->getRowDimension(3)->setRowHeight(10);
-
-            // Set column headers
-            $headers = ['No', 'Nomor PO', 'Tanggal', 'Supplier', 'Nama Barang', 'Batch', 'Qty', 'Harga', 'Total'];
-            foreach (range('A', 'I') as $key => $column) {
-                $sheet->setCellValue($column . '4', $headers[$key]);
-                $sheet->getColumnDimension($column)->setAutoSize(true);
-            }
-
-            // Style header row hitam putih
-            $sheet->getStyle('A4:I4')->applyFromArray([
+            $sheet->mergeCells('A' . $row . ':I' . $row);
+            $sheet->getStyle('A' . $row)->applyFromArray([
                 'font' => [
                     'bold' => true,
                     'size' => 11
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN
-                    ],
-                    'bottom' => [
-                        'borderStyle' => Border::BORDER_MEDIUM
-                    ]
-                ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
                     'vertical' => Alignment::VERTICAL_CENTER
                 ]
             ]);
-            
-            // Set tinggi baris header
-            $sheet->getRowDimension(4)->setRowHeight(30);
+            $sheet->getRowDimension($row)->setRowHeight(22);
+            $row++;
+
+            // Garis pembatas
+            $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray([
+                'borders' => [
+                    'bottom' => [
+                        'borderStyle' => Border::BORDER_MEDIUM
+                    ]
+                ]
+            ]);
+            $sheet->getRowDimension($row)->setRowHeight(2);
+            $row++;
+
+            // Spasi kosong
+            $sheet->getRowDimension($row)->setRowHeight(10);
+            $row++;
+
+            // Header kolom
+            $headers = ['No', 'Nomor PO', 'Tanggal', 'Supplier', 'Nama Barang', 'Batch', 'Qty', 'Harga', 'Total'];
+            foreach (range('A', 'I') as $key => $column) {
+                $sheet->setCellValue($column . $row, $headers[$key]);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+
+            // Style header row
+            $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 11,
+                    'color' => [
+                        'rgb' => 'FFFFFF'
+                    ]
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => [
+                        'rgb' => '366092'
+                    ]
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN
+                    ]
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true
+                ]
+            ]);
+
+            $sheet->getRowDimension($row)->setRowHeight(30);
+            $row++;
 
             // Fill data
-            $row = 5;
             $no = 1;
             $totalPurchase = 0;
 
@@ -225,11 +258,10 @@ class PurchaseReportController extends Controller
                     $total = $item->quantity * $item->unit_price;
                     $totalPurchase += $total;
 
-                    // Get item name from PO item
+                    // Get batch number from goods receipt
                     $itemName = $item->product_name ?? '-';
                     $batchNumber = '-';
                     
-                    // Get batch number from goods receipt
                     foreach ($po->goodsReceipts as $gr) {
                         foreach ($gr->items as $grItem) {
                             if ($grItem->product_name == $itemName) {
@@ -243,13 +275,13 @@ class PurchaseReportController extends Controller
                     $sheet->setCellValue('B' . $row, $po->po_number ?? '-');
                     $sheet->setCellValue('C' . $row, Carbon::parse($po->created_at)->format('d/m/Y'));
                     $sheet->setCellValue('D' . $row, $po->supplier->name ?? '-');
-                    $sheet->setCellValue('E' . $row, $item->product_name);  // Langsung dari PO item
+                    $sheet->setCellValue('E' . $row, $item->product_name);
                     $sheet->setCellValue('F' . $row, $batchNumber);
                     $sheet->setCellValue('G' . $row, $item->quantity);
-                    $sheet->setCellValue('H' . $row, number_format($item->unit_price));
-                    $sheet->setCellValue('I' . $row, number_format($total));
+                    $sheet->setCellValue('H' . $row, $item->unit_price);
+                    $sheet->setCellValue('I' . $row, $total);
 
-                    // Style data row hitam putih
+                    // Style data row dengan alternating colors
                     $rowStyle = [
                         'borders' => [
                             'allBorders' => [
@@ -260,67 +292,77 @@ class PurchaseReportController extends Controller
                             'vertical' => Alignment::VERTICAL_CENTER
                         ]
                     ];
-                    
-                    $sheet->getStyle('A'.$row.':I'.$row)->applyFromArray($rowStyle);
-                    
-                    // Set tinggi baris data
-                    $sheet->getRowDimension($row)->setRowHeight(25);
 
-                    // Set column alignments
-                    $sheet->getStyle('A'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('B'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('C'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('F'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('G'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('H'.$row.':I'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-                    // Zebra striping
-                    if ($row % 2 == 0) {
-                        $sheet->getStyle('A'.$row.':H'.$row)->getFill()
-                            ->setFillType(Fill::FILL_SOLID);
-                            // ->setStartColor(['rgb' => 'F8F9FA']);
+                    // Alternating row colors
+                    if ($no % 2 == 0) {
+                        $rowStyle['fill'] = [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => [
+                                'rgb' => 'E7E6E6'
+                            ]
+                        ];
                     }
+
+                    $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray($rowStyle);
+                    $sheet->getRowDimension($row)->setRowHeight(22);
+
+                    // Set alignment untuk setiap kolom
+                    $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                    $sheet->getStyle('I' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+                    // Format sebagai currency
+                    $sheet->getStyle('H' . $row . ':I' . $row)->getNumberFormat()
+                        ->setFormatCode('#,##0');
 
                     $row++;
                     $no++;
                 }
             }
 
-            // Add total row hitam putih
+            // Total row
             $sheet->setCellValue('A' . $row, 'TOTAL PEMBELIAN');
             $sheet->mergeCells('A' . $row . ':H' . $row);
-            $sheet->setCellValue('I' . $row, number_format($totalPurchase));
-            
-            $sheet->getStyle('A'.$row.':I'.$row)->applyFromArray([
+            $sheet->setCellValue('I' . $row, $totalPurchase);
+
+            $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray([
                 'font' => [
                     'bold' => true,
-                    'size' => 11
+                    'size' => 12,
+                    'color' => [
+                        'rgb' => 'FFFFFF'
+                    ]
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => [
+                        'rgb' => '366092'
+                    ]
                 ],
                 'borders' => [
-                    'top' => [
+                    'allBorders' => [
                         'borderStyle' => Border::BORDER_MEDIUM
-                    ],
-                    'bottom' => [
-                        'borderStyle' => Border::BORDER_DOUBLE
                     ]
                 ],
                 'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_RIGHT,
                     'vertical' => Alignment::VERTICAL_CENTER
                 ]
             ]);
-            
-            // Set tinggi baris total
-            $sheet->getRowDimension($row)->setRowHeight(30);
-            
-            $sheet->getStyle('A'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $sheet->getStyle('H'.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
-            // Add report date at bottom right
+            $sheet->getStyle('I' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getRowDimension($row)->setRowHeight(28);
+
+            // Report date at bottom
             $row += 2;
-            $sheet->setCellValue('G'.$row, 'Tanggal Laporan:');
-            $sheet->setCellValue('H'.$row, Carbon::now()->format('d/m/Y'));
-            $sheet->mergeCells('H'.$row.':I'.$row);
-            $sheet->getStyle('G'.$row.':I'.$row)->applyFromArray([
+            $sheet->setCellValue('G' . $row, 'Tanggal Laporan:');
+            $sheet->setCellValue('H' . $row, Carbon::now()->format('d/m/Y'));
+            $sheet->mergeCells('H' . $row . ':I' . $row);
+            $sheet->getStyle('G' . $row . ':I' . $row)->applyFromArray([
                 'font' => [
                     'size' => 11
                 ],
@@ -329,16 +371,27 @@ class PurchaseReportController extends Controller
                     'vertical' => Alignment::VERTICAL_CENTER
                 ]
             ]);
-            $sheet->getRowDimension($row)->setRowHeight(25);
+            $sheet->getRowDimension($row)->setRowHeight(22);
+
+            // Set column widths
+            $sheet->getColumnDimension('A')->setWidth(6);
+            $sheet->getColumnDimension('B')->setWidth(15);
+            $sheet->getColumnDimension('C')->setWidth(15);
+            $sheet->getColumnDimension('D')->setWidth(20);
+            $sheet->getColumnDimension('E')->setWidth(25);
+            $sheet->getColumnDimension('F')->setWidth(15);
+            $sheet->getColumnDimension('G')->setWidth(10);
+            $sheet->getColumnDimension('H')->setWidth(15);
+            $sheet->getColumnDimension('I')->setWidth(15);
 
             // Save file
             $writer = new Xlsx($spreadsheet);
             $filename = 'Laporan_Pembelian_' . date('Y-m-d_His') . '.xlsx';
-            
+
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="'.$filename.'"');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
             header('Cache-Control: max-age=0');
-            
+
             $writer->save('php://output');
             exit;
 

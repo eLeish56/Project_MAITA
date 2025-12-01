@@ -82,16 +82,13 @@
 <body>
     <div class="header">
         <div class="company-info">
-            @php
-                $logoPath = public_path('images/logo.png');
-                $logoBase64 = file_exists($logoPath) ? 
-                    base64_encode(file_get_contents($logoPath)) : 
-                    '';
-            @endphp
-            @if($logoBase64)
-                <img src="data:image/png;base64,{{ $logoBase64 }}" height="50">
-            @endif
-            <h3>Teaching Factory</h3>
+            <h2 style="margin: 0 0 5px 0;">SMK MUHAMMADIYAH 1 PALEMBANG</h2>
+            <p style="margin: 0 0 10px 0; font-size: 11px;">
+                Jl. Balayudha, RT.16/RW.4, Ario Kemuning, Kec. Kemuning<br>
+                Kota Palembang, Sumatera Selatan 30128 | Telepon: (0711) 414662
+            </p>
+            <hr style="margin: 10px 0;">
+            <h3 style="margin: 10px 0;">TEACHING FACTORY</h3>
         </div>
         <div class="document-info">
             <table class="info-table">
@@ -132,8 +129,6 @@
                 <th>Produk</th>
                 <th>Kuantitas</th>
                 <th>Harga</th>
-                <th>Diskon</th>
-                <th>Pajak</th>
                 <th>Total</th>
             </tr>
         </thead>
@@ -142,10 +137,8 @@
                 <tr>
                     <td>{{ $item->product_name }}</td>
                     <td style="text-align: center;">{{ $item->quantity }} {{ $item->unit }}</td>
-                    <td class="text-end">{{ number_format($item->unit_price) }}</td>
-                    <td class="text-end">0%</td>
-                    <td class="text-end">0%</td>
-                    <td class="text-end">{{ number_format($item->quantity * $item->unit_price) }}</td>
+                    <td class="text-end">Rp {{ number_format($item->unit_price) }}</td>
+                    <td class="text-end">Rp {{ number_format($item->quantity * $item->unit_price) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -154,27 +147,7 @@
     <div class="total-section">
         <table class="info-table">
             <tr>
-                <td>Subtotal</td>
-                <td class="text-end">Rp {{ number_format($po->total_amount) }}</td>
-            </tr>
-            <tr>
-                <td>Diskon</td>
-                <td class="text-end">Rp 0</td>
-            </tr>
-            <tr>
-                <td>Total</td>
-                <td class="text-end">Rp {{ number_format($po->total_amount) }}</td>
-            </tr>
-            <tr>
-                <td>Pajak</td>
-                <td class="text-end">Rp 0</td>
-            </tr>
-            <tr>
-                <td>Pajak Included</td>
-                <td class="text-end">Rp 0</td>
-            </tr>
-            <tr>
-                <td><strong>Jumlah Tertagih:</strong></td>
+                <td><strong>Total :</strong></td>
                 <td class="text-end"><strong>Rp {{ number_format($po->total_amount) }}</strong></td>
             </tr>
         </table>

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransactionController extends Controller
 {
@@ -47,6 +48,8 @@ class TransactionController extends Controller
 
     private function move_cart($transaction)
     {
+        // PINDAHKAN ITEM DARI CART KE TRANSACTION DETAIL
+        // Dan kurangi stok item untuk setiap transaksi (cash only)
         try {
             $carts = Cart::where('user_id', Auth::user()->id)->get();
 
@@ -56,13 +59,16 @@ class TransactionController extends Controller
                     throw new \Exception("Item tidak ditemukan");
                 }
 
+                // CEK STOK CUKUP
                 if ($item->stock < $cart->qty) {
                     throw new \Exception("Stok {$item->name} tidak mencukupi");
                 }
 
+                // KURANGI STOK
                 $item->stock -= $cart->qty;
                 $item->save();
 
+                // BUAT DETAIL TRANSAKSI
                 $transaction_detail = new TransactionDetail();
                 $transaction_detail->transaction_id = $transaction->id;
                 $transaction_detail->item_id = $cart->item_id;
@@ -72,7 +78,7 @@ class TransactionController extends Controller
                 $transaction_detail->save();
             }
         } catch (\Exception $e) {
-            // Rollback manual jika terjadi error
+            // ROLLBACK STOK JIKA ADA ERROR
             if (isset($carts)) {
                 foreach ($carts as $cart) {
                     $item = Item::find($cart->item_id);
@@ -93,19 +99,22 @@ class TransactionController extends Controller
         int $change,
         ?string $note = null
     ): void {
+        // FINALISASI PEMBAYARAN - HANYA TUNAI
+        // Method pembayaran sudah fixed ke 'Tunai', tidak ada metode lain
         $payment = PaymentMethod::where('name', $paymentMethodName)->first();
         if (!$payment) {
             throw new \Exception('Metode pembayaran tidak ditemukan.');
         }
 
         $total = (int) $transaction->total;
-        $isCash = strtolower($paymentMethodName) === 'tunai';
+        $isCash = strtolower($paymentMethodName) === 'tunai'; // Selalu true
 
         $transaction->payment_method_id = $payment->id;
-        $transaction->status = 'paid';
-        $transaction->amount = $isCash ? $amount : $total;
-        $transaction->change = $isCash ? max(0, $change) : 0;
+        $transaction->status = 'paid'; // Transaksi tunai langsung PAID
+        $transaction->amount = $isCash ? $amount : $total; // Jumlah uang yang diserahkan
+        $transaction->change = $isCash ? max(0, $change) : 0; // Kembalian hanya untuk tunai
 
+        // CATATAN: Tambahkan info kasir dan timestamp proses
         $kasir = optional(Auth::user())->name;
         $stamp = now()->format('d/m/Y H:i');
         $append = trim(($note ?: '') . " (diproses: {$kasir}, {$stamp})");
@@ -116,27 +125,33 @@ class TransactionController extends Controller
 
     public function store(Request $request): string
     {
+        // FUNGSI PROSES TRANSAKSI - HANYA TUNAI
+        // Semua transaksi melalui sistem tunai, tidak ada pilihan metode pembayaran lagi
         try {
             return DB::transaction(function() use ($request) {
+                // VALIDASI INPUT DARI FORM PEMBAYARAN
                 $request->validate([
                     'invoice' => 'required|string',
                     'invoice_no' => 'required|numeric',
                     'total' => 'required|numeric|min:0',
                     'discount' => 'nullable|numeric|min:0',
-                    'payment_method' => 'required|string',
-                    'amount' => 'nullable|numeric|min:0',
+                    'payment_method' => 'required|string', // FIXED: hanya 'Tunai'
+                    'amount' => 'nullable|numeric|min:0', // WAJIB untuk pembayaran tunai
                     'change' => 'nullable|numeric|min:0',
                     'note' => 'nullable|string|max:255',
                     'customer_id' => 'nullable|numeric'
                 ]);
 
+                // BUAT TRANSAKSI BARU
                 $transaction = new Transaction();
                 $transaction->user_id = Auth::user()->id;
-                // Set customer name in note if provided
-            if ($request->customer_name) {
-                $note = $request->note ? $request->note . " | " : "";
-                $transaction->note = $note . "Pelanggan: " . $request->customer_name;
-            }
+                
+                // Set nama pelanggan di catatan jika ada
+                if ($request->customer_name) {
+                    $note = $request->note ? $request->note . " | " : "";
+                    $transaction->note = $note . "Pelanggan: " . $request->customer_name;
+                }
+                
                 $transaction->invoice = $request->invoice;
                 $transaction->invoice_no = $request->invoice_no;
                 $transaction->total = (int) $request->total;
@@ -144,27 +159,34 @@ class TransactionController extends Controller
                 $transaction->note = $request->note ?? null;
                 $transaction->save();
 
-                // Validasi pembayaran dulu
-                $method = $request->payment_method;
+                // VALIDASI PEMBAYARAN - HANYA TUNAI
+                $method = $request->payment_method; // FIXED: 'Tunai' only
                 $total = (int) $transaction->total;
-                $isCash = strtolower($method) === 'tunai';
+                $isCash = strtolower($method) === 'tunai'; // Selalu true sekarang
                 $amount = (int) ($request->amount ?? 0);
                 $change = (int) ($request->change ?? 0);
 
+                // VALIDASI UANG TUNAI - SELALU WAJIB
                 if ($isCash && $amount < $total) {
                     throw new \Exception('Jumlah uang tunai kurang dari total!');
                 }
 
-                // Proses cart dan kurangi stok
+                // PROSES CART DAN KURANGI STOK
                 $this->move_cart($transaction);
 
-                // Finalisasi pembayaran
+                // FINALISASI PEMBAYARAN - SISTEM TUNAI
                 $this->finalizePaymentCommon($transaction, $method, $amount, $change, $request->note);
 
-                // Kosongkan cart
+                // KOSONGKAN KERANJANG SETELAH TRANSAKSI
                 Cart::where('user_id', Auth::user()->id)->delete();
 
-                return json_encode(['status' => 'success', 'message' => 'Transaksi berhasil']);
+                // RETURN ID TRANSAKSI UNTUK CETAK NOTA
+                return json_encode([
+                    'status' => 'success',
+                    'message' => 'Transaksi berhasil',
+                    'transaction_id' => $transaction->id,
+                    'invoice' => $transaction->invoice
+                ]);
             });
         } catch (\Exception $e) {
             return json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -292,6 +314,8 @@ class TransactionController extends Controller
 
     public function processOnline(Request $request, $orderId)
     {
+        // PROSES PESANAN MARKETPLACE - SISTEM TUNAI
+        // Setiap pesanan online selalu menggunakan metode pembayaran Tunai
         $order = DB::table('marketplace_orders')->where('id', $orderId)->first();
         if (!$order || $order->status !== 'pending_pickup') {
             return response()->json([
@@ -300,7 +324,7 @@ class TransactionController extends Controller
             ], 422);
         }
 
-        // Pastikan customer ada di tabel customers
+        // PASTIKAN CUSTOMER ADA
         $customerId = $this->ensureCustomerExists($order->user_id);
         if (!$customerId) {
             return response()->json([
@@ -309,11 +333,13 @@ class TransactionController extends Controller
             ], 422);
         }
 
-        // Gunakan metode pembayaran default (Tunai)
+        // GUNAKAN METODE PEMBAYARAN TUNAI
+        // Tidak ada pilihan metode pembayaran lagi, semua online order = tunai
         $payment = PaymentMethod::whereRaw('LOWER(name) = ?', ['tunai'])->first()
                   ?? PaymentMethod::first();
 
-        DB::transaction(function () use ($order, $payment, $customerId) {
+        $transactionId = null;
+        DB::transaction(function () use ($order, $payment, $customerId, &$transactionId) {
             $total = (int) $order->total_price;
             $orderLocked = DB::table('marketplace_orders')
                 ->where('id', $order->id)
@@ -328,6 +354,7 @@ class TransactionController extends Controller
                 ->where('order_id', $orderLocked->id)
                 ->get();
 
+            // GENERATE NOMOR INVOICE UNIK UNTUK TRANSAKSI
             $today   = now()->format('dmy');
             $last    = DB::table('transactions')
                 ->whereDate('created_at', now()->toDateString())
@@ -336,31 +363,30 @@ class TransactionController extends Controller
             $seq     = $last ? ((int) $last->invoice_no + 1) : 1;
             $invoice = $today . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-            $trxId = DB::table('transactions')->insertGetId([
-                // Store the marketplace customer as the transaction user
-                // (we no longer use the legacy `customers` table)
+            // BUAT RECORD TRANSAKSI UNTUK MARKETPLACE ORDER
+            $transactionId = DB::table('transactions')->insertGetId([
                 'user_id'           => $customerId,
                 'channel'           => 'online',
                 'payment_status'    => 'paid',
                 'pickup_status'     => 'picked_up',
                 'pickup_code'       => $orderLocked->code,
-                //'customer_id'       => $customerId, // legacy column not used here
                 'invoice'           => $invoice,
                 'invoice_no'        => (string) $seq,
                 'total'             => (int) $orderLocked->total_price,
                 'discount'          => 0,
-                'payment_method_id' => $payment->id,
-                'amount'            => $total,
-                'change'            => 0,
-                'status'            => 'paid',
+                'payment_method_id' => $payment->id, // FIXED: Tunai
+                'amount'            => $total, // Jumlah tunai yang diserahkan
+                'change'            => 0, // Kembalian (bisa di-override customer)
+                'status'            => 'paid', // Langsung PAID untuk online tunai
                 'note'              => 'Marketplace pickup: ' . $orderLocked->pickup_name . ' (' . $orderLocked->phone . ')',
                 'created_at'        => now(),
                 'updated_at'        => now(),
             ]);
 
+            // BUAT DETAIL TRANSAKSI UNTUK SETIAP ITEM
             foreach ($items as $i) {
                 DB::table('transaction_details')->insert([
-                    'transaction_id' => $trxId,
+                    'transaction_id' => $transactionId,
                     'item_id'        => $i->item_id,
                     'qty'            => (int) $i->qty,
                     'item_price'     => (int) $i->price,
@@ -370,6 +396,7 @@ class TransactionController extends Controller
                 ]);
             }
 
+            // UBAH STATUS PESANAN MENJADI SELESAI
             DB::table('marketplace_orders')
                 ->where('id', $orderLocked->id)
                 ->update([
@@ -378,9 +405,11 @@ class TransactionController extends Controller
                 ]);
         });
 
+        // RETURN ID TRANSAKSI UNTUK CETAK NOTA
         return response()->json([
             'status'  => 'success',
-            'message' => 'Transaksi online berhasil diproses.'
+            'message' => 'Transaksi online berhasil diproses.',
+            'transaction_id' => $transactionId
         ]);
     }
 
@@ -495,7 +524,8 @@ public function processMarketplaceOrder($orderId)
         ], 422);
     }
 
-    DB::transaction(function () use ($order) {
+    $transactionId = null;
+    DB::transaction(function () use ($order, &$transactionId) {
         // Gunakan metode pembayaran default, misalnya Tunai
         $payment = PaymentMethod::whereRaw('LOWER(name) = ?', ['tunai'])->first()
                   ?? PaymentMethod::first();
@@ -509,15 +539,13 @@ public function processMarketplaceOrder($orderId)
         $seq     = $last ? ((int) $last->invoice_no + 1) : 1;
         $invoice = $today . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        // ... kode lain ...
-
-        $trxId = DB::table('transactions')->insertGetId([
+        $transactionId = DB::table('transactions')->insertGetId([
             'user_id'           => Auth::id(),
             'channel'           => 'online',
             'payment_status'    => 'paid',
             'pickup_status'     => 'picked_up',
             'pickup_code'       => $order->code,
-            'customer_id'       => null, // jangan mengisi id user di sini karena tidak ada di tabel customers
+            'customer_id'       => null,
             'invoice'           => $invoice,
             'invoice_no'        => (string) $seq,
             'total'             => (int) $order->total_price,
@@ -531,7 +559,6 @@ public function processMarketplaceOrder($orderId)
             'updated_at'        => now(),
         ]);
 
-
         // Simpan detail transaksi
         $items = DB::table('marketplace_order_items')
             ->where('order_id', $order->id)
@@ -539,7 +566,7 @@ public function processMarketplaceOrder($orderId)
 
         foreach ($items as $i) {
             DB::table('transaction_details')->insert([
-                'transaction_id' => $trxId,
+                'transaction_id' => $transactionId,
                 'item_id'        => $i->item_id,
                 'qty'            => (int) $i->qty,
                 'item_price'     => (int) $i->price,
@@ -558,9 +585,79 @@ public function processMarketplaceOrder($orderId)
 
     return response()->json([
         'status'  => 'success',
-        'message' => 'Pesanan berhasil diselesaikan.'
+        'message' => 'Pesanan berhasil diselesaikan.',
+        'transaction_id' => $transactionId
     ]);
-}
+}    /**
+     * Cetak nota/receipt transaksi
+     */
+    public function printReceipt(Transaction $transaction)
+    {
+        try {
+            // Load transaksi dengan relasi
+            $transaction->load('transactionDetails', 'user', 'paymentMethod');
+
+            // Ambil detail item untuk setiap transaksi detail
+            $transactionDetails = $transaction->transactionDetails->map(function($detail) {
+                $item = Item::find($detail->item_id);
+                return [
+                    'item_name' => $item ? $item->name : 'Item tidak ditemukan',
+                    'qty' => $detail->qty,
+                    'price' => $detail->item_price,
+                    'subtotal' => $detail->total,
+                ];
+            });
+
+            // Data untuk view
+            $data = [
+                'transaction' => $transaction,
+                'details' => $transactionDetails,
+                'company_name' => env('APP_NAME', 'POS System'),
+                'company_address' => env('COMPANY_ADDRESS', 'Alamat Perusahaan'),
+                'company_phone' => env('COMPANY_PHONE', ''),
+            ];
+
+            // Generate PDF
+            $pdf = Pdf::loadView('transaction.receipt', $data);
+            $pdf->setPaper('A4', 'portrait');
+            
+            return $pdf->stream('nota-' . $transaction->invoice . '.pdf');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal membuat nota: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * API: Dapatkan transaksi berdasarkan invoice
+     */
+    public function getTransactionByInvoice($invoice)
+    {
+        $transaction = Transaction::where('invoice', $invoice)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$transaction) {
+            return response()->json(['error' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        return response()->json(['id' => $transaction->id]);
+    }
+
+    /**
+     * API: Dapatkan transaksi terakhir
+     */
+    public function getLastTransaction()
+    {
+        $transaction = Transaction::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$transaction) {
+            return response()->json(['error' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        return response()->json(['id' => $transaction->id]);
+    }
 
 
 }

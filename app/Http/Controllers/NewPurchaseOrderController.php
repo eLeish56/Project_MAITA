@@ -651,4 +651,42 @@ class NewPurchaseOrderController extends Controller
             return back()->withErrors(['error' => 'Gagal mengkonfirmasi harga: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Download invoice file
+     */
+    public function downloadInvoiceFile($invoiceId)
+    {
+        try {
+            $invoice = Invoice::findOrFail($invoiceId);
+            
+            if (!$invoice->invoice_file || !Storage::disk('public')->exists($invoice->invoice_file)) {
+                return back()->with('error', 'File invoice tidak ditemukan');
+            }
+
+            $filePath = Storage::disk('public')->path($invoice->invoice_file);
+            return response()->download($filePath);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal download file: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download payment proof file
+     */
+    public function downloadPaymentProof($invoiceId)
+    {
+        try {
+            $invoice = Invoice::findOrFail($invoiceId);
+            
+            if (!$invoice->payment_proof || !Storage::disk('public')->exists($invoice->payment_proof)) {
+                return back()->with('error', 'File bukti pembayaran tidak ditemukan');
+            }
+
+            $filePath = Storage::disk('public')->path($invoice->payment_proof);
+            return response()->download($filePath);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal download file: ' . $e->getMessage());
+        }
+    }
 }

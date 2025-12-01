@@ -17,6 +17,14 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->timestamps();
         });
+
+        // FIX: Tambah foreign key setelah categories dibuat
+        Schema::table('items', function (Blueprint $table) {
+            $table->foreign('category_id')
+                ->references('id')
+                ->on('categories')
+                ->onDelete('cascade');
+        });
     }
 
     /**
@@ -24,6 +32,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop foreign key constraint dulu sebelum drop table
+        Schema::table('items', function (Blueprint $table) {
+            $table->dropForeign(['category_id']);
+        });
         Schema::dropIfExists('categories');
     }
 };

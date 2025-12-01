@@ -27,14 +27,12 @@ class PasswordResetLinkController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        // Cek bahwa email tersebut milik user dengan role 'customer'
-        $user = User::where('email', $request->email)
-                    ->where('role', 'customer')
-                    ->first();
+        // Cek apakah user dengan email tersebut ada
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return back()->withErrors([
-                'email' => 'Kami tidak menemukan pelanggan dengan email tersebut.',
+                'email' => 'Kami tidak menemukan pengguna dengan email tersebut.',
             ]);
         }
 

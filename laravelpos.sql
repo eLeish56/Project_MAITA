@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 11, 2025 at 12:48 AM
+-- Generation Time: Nov 27, 2025 at 10:15 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -61,7 +61,15 @@ INSERT INTO `absences` (`id`, `user_id`, `login_at`, `logout_at`, `created_at`, 
 (100, 14, '05:31:00', '05:53:00', '2025-11-10 22:31:55', '2025-11-10 22:53:55'),
 (101, 17, '05:53:00', '05:54:00', '2025-11-10 22:53:59', '2025-11-10 22:54:13'),
 (102, 12, '05:54:00', '06:32:00', '2025-11-10 22:54:17', '2025-11-10 23:32:24'),
-(103, 12, '06:32:00', NULL, '2025-11-10 23:32:30', '2025-11-10 23:32:30');
+(103, 12, '06:32:00', NULL, '2025-11-10 23:32:30', '2025-11-10 23:32:30'),
+(104, 12, '10:52:00', '11:07:00', '2025-11-11 03:52:09', '2025-11-11 04:07:06'),
+(105, 14, '11:08:00', '11:10:00', '2025-11-11 04:08:32', '2025-11-11 04:10:45'),
+(106, 12, '11:11:00', NULL, '2025-11-11 04:11:16', '2025-11-11 04:11:16'),
+(107, 12, '22:46:00', '22:56:00', '2025-11-11 15:46:57', '2025-11-11 15:56:46'),
+(108, 14, '00:21:00', '00:22:00', '2025-11-11 17:21:47', '2025-11-11 17:22:13'),
+(109, 12, '22:38:00', '22:39:00', '2025-11-24 15:38:47', '2025-11-24 15:39:28'),
+(110, 14, '22:52:00', '22:52:00', '2025-11-24 15:52:15', '2025-11-24 15:52:27'),
+(111, 17, '22:52:00', NULL, '2025-11-24 15:52:31', '2025-11-24 15:52:31');
 
 -- --------------------------------------------------------
 
@@ -177,13 +185,6 @@ CREATE TABLE `goods_receipts` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `goods_receipts`
---
-
-INSERT INTO `goods_receipts` (`id`, `purchase_order_id`, `gr_number`, `receipt_date`, `received_by`, `status`, `notes`, `receipt_document`, `created_at`, `updated_at`) VALUES
-(31, 38, 'GR-0001/11/2025', '2025-11-11', 12, 'completed', NULL, 'receipts/UpaK7kcuXf5eS5kUAyUobHXNNrzFjdAczjHeuSQD.png', '2025-11-10 22:55:46', '2025-11-10 22:55:46');
-
 -- --------------------------------------------------------
 
 --
@@ -206,14 +207,6 @@ CREATE TABLE `goods_receipt_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `goods_receipt_items`
---
-
-INSERT INTO `goods_receipt_items` (`id`, `goods_receipt_id`, `item_id`, `product_name`, `unit`, `quantity_received`, `remaining_quantity`, `expiry_date`, `lot_code`, `batch_number`, `expiry_status`, `notes`, `created_at`, `updated_at`) VALUES
-(43, 31, NULL, 'Cairan Pembersih Lantai Wipol 750ML', 'box', 5, 5, '2030-06-11', NULL, 'CAI251111001', 'safe', NULL, '2025-11-10 22:55:46', '2025-11-10 22:55:46'),
-(44, 31, NULL, 'Cairan Pembersih Lantai Porselen Vixal 750M', 'box', 5, 5, '2028-11-16', NULL, 'CAI251111002', 'safe', NULL, '2025-11-10 22:55:46', '2025-11-10 22:55:46');
 
 -- --------------------------------------------------------
 
@@ -252,14 +245,6 @@ CREATE TABLE `inventory_movements` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `inventory_movements`
---
-
-INSERT INTO `inventory_movements` (`id`, `goods_receipt_item_id`, `type`, `qty`, `ref_type`, `ref_id`, `note`, `created_at`, `updated_at`) VALUES
-(25, 43, 'in', 5.00, 'GR', '31', 'Penerimaan barang dari GR #GR-0001/11/2025', '2025-11-10 22:55:46', '2025-11-10 22:55:46'),
-(26, 44, 'in', 5.00, 'GR', '31', 'Penerimaan barang dari GR #GR-0001/11/2025', '2025-11-10 22:55:46', '2025-11-10 22:55:46');
 
 -- --------------------------------------------------------
 
@@ -317,13 +302,6 @@ CREATE TABLE `invoices` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `invoices`
---
-
-INSERT INTO `invoices` (`id`, `purchase_order_id`, `invoice_number`, `invoice_date`, `due_date`, `amount`, `status`, `invoice_file`, `payment_proof`, `notes`, `created_at`, `updated_at`) VALUES
-(12, 38, '12332123134', '2025-11-11', '2025-12-11', 110000.00, 'paid', 'invoices/vkxyBv3gIf9UWcqhEWGnRkAL0zE0LiAqv6YgOAps.png', 'payment_proofs/dNTESUzkh6H9jQDyMrV6JGpeDu9Pdvxgpi1MnD2T.png', NULL, '2025-11-10 22:56:02', '2025-11-10 22:56:02');
-
 -- --------------------------------------------------------
 
 --
@@ -349,11 +327,11 @@ CREATE TABLE `items` (
 --
 
 INSERT INTO `items` (`id`, `name`, `code`, `category_id`, `cost_price`, `selling_price`, `stock`, `picture`, `created_at`, `updated_at`, `requires_expiry`) VALUES
-(311, 'Oasis Air Minum 1500 mL', 'BLPP9581', 21, 5000, 7000, 1, '1762468998.png', '2025-11-06 15:43:18', '2025-11-09 19:40:54', 0),
+(311, 'Oasis Air Minum 1500 mL', 'BLPP9581', 21, 5000, 7000, 0, '1762468998.png', '2025-11-06 15:43:18', '2025-11-09 19:40:54', 0),
 (312, 'Oasis Air Minum Box of 600 mL', 'DBAT0940', 21, 3000, 4000, 35, '1762485461.png', '2025-11-06 20:17:41', '2025-11-10 15:15:05', 0),
-(313, 'Sunlight Sabun Cuci Piring Sunlight Lime 650ml', 'BMMT0482', 23, 10000, 12000, 35, '1761083578.png', '2025-10-21 14:53:00', '2025-11-10 15:26:56', 0),
-(314, 'Batere ABC Alkaline Uk AAA', 'QPKT9114', 23, 20000, 22000, 83, '1761083638.jpeg', '2025-10-21 14:53:58', '2025-11-10 15:22:34', 0),
-(315, 'Stopmap kertas Folio tipe 5001', 'XNCT8114', 22, 1000, 2000, 118, '1761083666.jpg', '2025-10-21 14:54:26', '2025-11-10 22:28:33', 0);
+(313, 'Sunlight Sabun Cuci Piring Sunlight Lime 650ml', 'BMMT0482', 23, 10000, 12000, 34, '1761083578.png', '2025-10-21 14:53:00', '2025-11-24 16:04:34', 0),
+(314, 'Batere ABC Alkaline Uk AAA', 'QPKT9114', 23, 20000, 22000, 78, '1761083638.jpeg', '2025-10-21 14:53:58', '2025-11-24 15:53:31', 0),
+(315, 'Stopmap kertas Folio tipe 5001', 'XNCT8114', 22, 1000, 2000, 85, '1761083666.jpg', '2025-10-21 14:54:26', '2025-11-24 16:33:41', 0);
 
 -- --------------------------------------------------------
 
@@ -401,7 +379,8 @@ INSERT INTO `marketplace_orders` (`id`, `user_id`, `code`, `status`, `pickup_nam
 (8, 15, 'PO-DYGLFGZL', 'completed', 'abuya', '0895701233483', 'ambil bisa sekarang', 48000.00, '2025-11-09 19:17:57', '2025-11-09 19:18:30'),
 (9, 16, 'PO-S7Z9MTCR', 'completed', 'berlian permata suci', '0895565456456', 'sasdsa', 102000.00, '2025-11-09 19:22:57', '2025-11-09 19:46:33'),
 (10, 19, 'PO-ZIEKWUQL', 'completed', 'farhan', '2212222', NULL, 2000.00, '2025-11-09 19:41:50', '2025-11-10 13:29:02'),
-(11, 15, 'PO-LVNANHRV', 'completed', 'abuya', '9878756674654', 'hjbgjhfkytgjhk', 48000.00, '2025-11-09 22:33:21', '2025-11-09 22:35:06');
+(11, 15, 'PO-LVNANHRV', 'completed', 'abuya', '9878756674654', 'hjbgjhfkytgjhk', 48000.00, '2025-11-09 22:33:21', '2025-11-09 22:35:06'),
+(12, 15, 'PO-VH3ZYHFS', 'completed', 'abuya', '0892732737', NULL, 7000.00, '2025-11-11 04:08:05', '2025-11-11 04:09:07');
 
 -- --------------------------------------------------------
 
@@ -442,7 +421,8 @@ INSERT INTO `marketplace_order_items` (`id`, `order_id`, `item_id`, `qty`, `pric
 (21, 9, 315, 1, 2000.00, '2025-11-09 19:22:57', '2025-11-09 19:22:57'),
 (22, 10, 315, 1, 2000.00, '2025-11-09 19:41:50', '2025-11-09 19:41:50'),
 (23, 11, 315, 2, 2000.00, '2025-11-09 22:33:21', '2025-11-09 22:33:21'),
-(24, 11, 314, 2, 22000.00, '2025-11-09 22:33:21', '2025-11-09 22:33:21');
+(24, 11, 314, 2, 22000.00, '2025-11-09 22:33:21', '2025-11-09 22:33:21'),
+(25, 12, 311, 1, 7000.00, '2025-11-11 04:08:05', '2025-11-11 04:08:05');
 
 -- --------------------------------------------------------
 
@@ -498,7 +478,28 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (36, '0001_01_01_000002_create_inventory_movements_table', 7),
 (37, '2025_11_07_000001_modify_item_id_in_goods_receipt_items', 8),
 (38, '2025_11_07_231925_create_cart_items_table', 9),
-(39, '0001_01_01_000001_create_cache_table', 10);
+(39, '0001_01_01_000001_create_cache_table', 10),
+(40, '2025_11_11_224914_create_password_reset_tokens_table', 11);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`email`, `token`, `created_at`) VALUES
+('tumbalone12556@gmail.com', '$2y$12$EeIhVsi1dimKO0pbTBr/MOSJZ./Lonlyru5.OG1FNmyEJoxF/71Yu', '2025-11-11 17:16:46'),
+('tumbalone12555@gmail.com', '$2y$12$ZRGEeAfRCn2tnmqGN36UWeptymaFV8MTEo7SzSWjVwnkXqhEi41Mu', '2025-11-11 17:33:23');
 
 -- --------------------------------------------------------
 
@@ -520,12 +521,8 @@ CREATE TABLE `payment_methods` (
 
 INSERT INTO `payment_methods` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
 (1, 'Tunai', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
-(2, 'Debit', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
-(3, 'Kredit', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
 (4, 'Transfer', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
 (5, 'OVO', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
-(6, 'GoPay', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
-(7, 'Dana', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38'),
 (8, 'QRIS', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38');
 
 -- --------------------------------------------------------
@@ -557,7 +554,8 @@ CREATE TABLE `purchase_orders` (
 
 INSERT INTO `purchase_orders` (`id`, `po_number`, `supplier_id`, `purchase_request_id`, `po_date`, `status`, `total_amount`, `supplier_confirmed`, `supplier_notes`, `invoice_image_path`, `created_by`, `created_at`, `updated_at`, `prices_confirmed`) VALUES
 (37, 'PO/2025/11/0001', 29, 33, '2025-11-11', 'sent', 200000.00, 0, NULL, NULL, 14, '2025-11-10 22:32:07', '2025-11-10 22:40:53', 1),
-(38, 'PO/2025/11/0002', 27, 34, '2025-11-11', 'completed', 110000.00, 0, NULL, NULL, 12, '2025-11-10 22:55:07', '2025-11-10 22:56:02', 1);
+(38, 'PO/2025/11/0002', 27, 34, '2025-11-11', 'completed', 110000.00, 0, NULL, NULL, 12, '2025-11-10 22:55:07', '2025-11-10 22:56:02', 1),
+(39, 'PO/2025/11/0003', 31, 35, '2025-11-11', 'sent', 100000.00, 0, NULL, NULL, 12, '2025-11-11 03:59:57', '2025-11-11 04:02:39', 1);
 
 -- --------------------------------------------------------
 
@@ -602,7 +600,8 @@ INSERT INTO `purchase_order_items` (`id`, `purchase_order_id`, `item_id`, `produ
 (89, 37, NULL, 'Note BANTEX FLEXI TAB 5 NEON COLOUR', 15, 'pcs', 5000.00, NULL, '2025-11-10 22:32:07', '2025-11-10 22:40:42'),
 (90, 37, NULL, 'Lem Stick UHU 8 ram', 25, 'box', 5000.00, NULL, '2025-11-10 22:32:07', '2025-11-10 22:40:42'),
 (91, 38, NULL, 'Cairan Pembersih Lantai Wipol 750ML', 5, 'box', 10000.00, NULL, '2025-11-10 22:55:07', '2025-11-10 22:55:22'),
-(92, 38, NULL, 'Cairan Pembersih Lantai Porselen Vixal 750M', 5, 'box', 12000.00, NULL, '2025-11-10 22:55:07', '2025-11-10 22:55:22');
+(92, 38, NULL, 'Cairan Pembersih Lantai Porselen Vixal 750M', 5, 'box', 12000.00, NULL, '2025-11-10 22:55:07', '2025-11-10 22:55:22'),
+(93, 39, NULL, 'KERTAS HVS', 10, 'box', 10000.00, NULL, '2025-11-11 03:59:57', '2025-11-11 04:02:24');
 
 -- --------------------------------------------------------
 
@@ -635,7 +634,8 @@ CREATE TABLE `purchase_requests` (
 
 INSERT INTO `purchase_requests` (`id`, `pr_number`, `requested_by`, `request_date`, `supplier_id`, `status`, `approved_by`, `approved_at`, `approval_status`, `approval_notes`, `rejection_reason`, `validation_document_path`, `is_validated`, `description`, `created_at`, `updated_at`) VALUES
 (33, 'PR-0001/11/2025', 17, '2025-11-11', 29, 'po_created', 12, '2025-11-10 22:31:40', 'approved', NULL, NULL, NULL, 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:32:07'),
-(34, 'PR-0002/11/2025', 12, '2025-11-11', 27, 'po_created', 12, '2025-11-10 22:54:56', 'approved', NULL, NULL, NULL, 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:55:07');
+(34, 'PR-0002/11/2025', 12, '2025-11-11', 27, 'po_created', 12, '2025-11-10 22:54:56', 'approved', NULL, NULL, NULL, 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:55:07'),
+(35, 'PR-0003/11/2025', 12, '2025-11-11', 31, 'po_created', 12, '2025-11-11 03:59:14', 'approved', NULL, NULL, NULL, 0, NULL, '2025-11-11 03:58:29', '2025-11-11 03:59:57');
 
 -- --------------------------------------------------------
 
@@ -663,7 +663,8 @@ INSERT INTO `purchase_request_items` (`id`, `purchase_request_id`, `product_name
 (77, 33, 'Note BANTEX FLEXI TAB 5 NEON COLOUR', 15, 'pcs', 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:29:26'),
 (78, 33, 'Lem Stick UHU 8 ram', 25, 'box', 0, NULL, '2025-11-10 22:29:26', '2025-11-10 22:29:26'),
 (79, 34, 'Cairan Pembersih Lantai Wipol 750ML', 5, 'box', 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:54:49'),
-(80, 34, 'Cairan Pembersih Lantai Porselen Vixal 750M', 5, 'box', 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:54:49');
+(80, 34, 'Cairan Pembersih Lantai Porselen Vixal 750M', 5, 'box', 0, NULL, '2025-11-10 22:54:49', '2025-11-10 22:54:49'),
+(81, 35, 'KERTAS HVS', 10, 'box', 0, NULL, '2025-11-11 03:58:29', '2025-11-11 03:58:29');
 
 -- --------------------------------------------------------
 
@@ -685,7 +686,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('B6l2Jn723QCUH2wpect0eyDvIj05wevBr7PRDpxP', 12, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoieVFSaTZMdUV6Y1ZPbjdzTWQzSTRvWjVRb1Q1b3NUSWpRMHNMdnpOYSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hcGkvbW9udGhseS1pbmNvbWU/eWVhcj0yMDI1Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTI7fQ==', 1762817552);
+('JlzJHiKRyhiZ2evxZMj5nUpsbWHuTWIS2tDgZede', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiQjdIWHhqalNadHFiaG5ua3BFVjRaS0VzdkgxeWROU0lyVVNVS0UxaCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9mb3Jnb3QtcGFzc3dvcmQiO31zOjIyOiJQSFBERUJVR0JBUl9TVEFDS19EQVRBIjthOjA6e319', 1762882566),
+('oIDW2TRdM524I2pJ95KDtWrJavGFZ99W3Rv2r0TB', 17, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiNXBjZklIc29iWTRYZW10b0xkeE9pUjJGeHJ0TGNsejRpSjBIRjBTeCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hcGkvbW9udGhseS1pbmNvbWU/eWVhcj0yMDI1Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTc7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1764002049),
+('t1OhJSgd9uCo7ZrTpCFa1u9KZ0SLwN3z7kWszzHi', 20, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVGtIaDhpSHhISmo4ZUtrUml6aFVtZUt4R3NVZEdDYUp6Z3hQa1YybiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jdXN0b21lci9kYXNoYm9hcmQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyMDt9', 1762882971);
 
 -- --------------------------------------------------------
 
@@ -737,7 +740,8 @@ INSERT INTO `suppliers` (`id`, `name`, `phone`, `address`, `email`, `description
 (27, 'PT. Delta Muster Rise', '08125523455', 'Jl. Pangeran Ayin Komp. Sako Permai Blok E No. 5, Kel. Sako Baru Palembang, Sumatera Selatan, Indonesia', NULL, 'Barang di pesan Melalui website https://www.indotrading.com/deltamusterrise', '2025-11-04 23:32:33', '2025-11-04 23:32:57'),
 (28, 'PT. Surya Vesakha Pamungkas', '0892444434544', 'Jl. Sei Itam No. 77 Kelurahan Bukit Lama Kecamatan Ilir Barat I Palembang, Sumatera Selatan, Indonesia', NULL, 'Produk dipesan melalui website resmi https://www.indotrading.com/suryavesakhapamungkas', '2025-11-04 23:42:45', '2025-11-04 23:42:45'),
 (29, 'CV. Dempo Center', '089232555222', 'Jl. Sultan M Mansyur Toko Dempo Laundry, Bukit Lama, Ilir Barat 1, Kota palembang, Palembang, Sumatera Selatan', NULL, 'Produk dipesan melalui website resmi https://www.indotrading.com/dempocenter', '2025-11-04 23:47:54', '2025-11-04 23:47:54'),
-(30, 'pt.alif12', '0882323222', 'gandus', 'ptalif@gmail.com', NULL, '2025-11-09 22:04:25', '2025-11-09 22:04:25');
+(30, 'pt.alif12', '0882323222', 'gandus', 'ptalif@gmail.com', NULL, '2025-11-09 22:04:25', '2025-11-09 22:04:25'),
+(31, 'PT. KONTAK ABADI', '08921232322', 'GANDU', 'SQMD@GMAIL.COM', NULL, '2025-11-11 03:57:31', '2025-11-11 03:57:31');
 
 -- --------------------------------------------------------
 
@@ -787,7 +791,9 @@ INSERT INTO `supplier_products` (`id`, `supplier_id`, `item_id`, `product_name`,
 (36, 29, NULL, 'penghapus faber castell Putih KECIL 1872', NULL, 1, NULL, '2025-11-07 14:01:24', '2025-11-07 14:01:24'),
 (37, 29, NULL, 'Spidol dan Highlighter spidol whiteboard snowman', NULL, 1, NULL, '2025-11-07 14:01:24', '2025-11-07 14:01:24'),
 (38, 30, NULL, 'yougurt', NULL, 1, NULL, '2025-11-09 22:04:25', '2025-11-09 22:04:25'),
-(39, 30, NULL, 'susu milk', NULL, 1, NULL, '2025-11-09 22:04:25', '2025-11-09 22:04:25');
+(39, 30, NULL, 'susu milk', NULL, 1, NULL, '2025-11-09 22:04:25', '2025-11-09 22:04:25'),
+(40, 31, NULL, 'KERTAS HVS', NULL, 1, NULL, '2025-11-11 03:57:31', '2025-11-11 03:57:31'),
+(41, 31, NULL, 'KERTAS A4', NULL, 1, NULL, '2025-11-11 03:57:31', '2025-11-11 03:57:31');
 
 -- --------------------------------------------------------
 
@@ -824,23 +830,14 @@ INSERT INTO `transactions` (`id`, `user_id`, `customer_id`, `invoice`, `invoice_
 (19, 12, NULL, '0711250001', '1', 105000, 0, 1, NULL, 105000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 07/11/2025 00:06)', '2025-11-06 17:06:29', '2025-11-06 17:06:29'),
 (22, 12, NULL, '0711250002', '2', 105000, 0, 1, NULL, 105000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 07/11/2025 01:21)', '2025-11-06 18:21:10', '2025-11-06 18:21:11'),
 (23, 14, NULL, '0711250003', '3', 14000, 0, 1, 'online', 14000, 0, 'paid', 'paid', 'picked_up', 'PO-E9F2VKG8', 'Marketplace pickup: abuya (123122323221)', '2025-11-06 18:26:48', '2025-11-06 18:26:48'),
-(24, 12, NULL, '0711250004', '4', 184000, 0, 7, NULL, 184000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 07/11/2025 03:24)', '2025-11-06 20:24:24', '2025-11-06 20:24:24'),
 (25, 12, NULL, '0711250005', '5', 60000, 0, 1, NULL, 60000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 07/11/2025 21:04)', '2025-11-07 14:04:52', '2025-11-07 14:04:52'),
 (28, 12, NULL, '0711250006', '6', 34000, 0, 1, NULL, 34000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 07/11/2025 21:27)', '2025-11-07 14:27:13', '2025-11-07 14:27:13'),
-(29, 12, NULL, '0711250007', '7', 15000, 0, 7, NULL, 15000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 07/11/2025 21:40)', '2025-11-07 14:40:57', '2025-11-07 14:40:57'),
-(30, 12, NULL, '3009250001', '1', 23000, 0, 7, NULL, 23000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 30/09/2025 21:49)', '2025-09-30 14:49:12', '2025-09-30 14:49:12'),
-(31, 12, NULL, '2110250001', '1', 20000, 0, 7, NULL, 20000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/10/2025 21:50)', '2025-10-21 14:50:39', '2025-10-21 14:50:40'),
-(32, 12, NULL, '2110250002', '2', 60000, 0, 7, NULL, 60000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/10/2025 21:54)', '2025-10-21 14:54:54', '2025-10-21 14:54:54'),
-(33, 12, NULL, '2108250001', '1', 22000, 0, 7, NULL, 22000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/08/2025 22:25)', '2025-08-21 15:25:05', '2025-08-21 15:25:05'),
 (34, 12, NULL, '2108250002', '2', 12000, 0, 1, NULL, 12000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/08/2025 22:25)', '2025-08-21 15:25:24', '2025-08-21 15:25:24'),
 (35, 12, NULL, '2108250002', '2', 8000, 0, 1, NULL, 8000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/08/2025 22:25)', '2025-08-21 15:25:56', '2025-08-21 15:25:56'),
 (36, 12, NULL, '2108250003', '3', 22000, 0, 1, NULL, 22000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/08/2025 22:26)', '2025-08-21 15:26:16', '2025-08-21 15:26:16'),
-(37, 12, NULL, '2108250004', '4', 1200000, 0, 7, NULL, 1200000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 21/08/2025 22:27)', '2025-08-21 15:27:50', '2025-08-21 15:27:50'),
 (38, 14, NULL, '0711250008', '8', 28000, 0, 1, 'online', 28000, 0, 'paid', 'paid', 'picked_up', 'PO-EXBKUK7I', 'Marketplace pickup: berlian permata suci (089541064646)', '2025-11-07 16:08:17', '2025-11-07 16:08:17'),
 (39, 14, NULL, '1011250001', '1', 18000, 0, 1, 'online', 18000, 0, 'paid', 'paid', 'picked_up', 'PO-LTE3QTG4', 'Marketplace pickup: abuya (9684654416)', '2025-11-09 17:21:48', '2025-11-09 17:21:48'),
 (40, 14, NULL, '1011250002', '2', 28000, 0, 1, 'online', 28000, 0, 'paid', 'paid', 'picked_up', 'PO-AGGFOLZE', 'Marketplace pickup: abuya (089571239923)', '2025-11-09 17:21:51', '2025-11-09 17:21:51'),
-(44, 14, NULL, '1011250005', '5', 51000, 0, 7, NULL, 51000, 0, 'paid', NULL, NULL, NULL, '(diproses: riski halimawan, 10/11/2025 02:40)', '2025-11-09 19:40:54', '2025-11-09 19:40:54'),
-(46, 12, NULL, '1011250007', '7', 22000, 0, 7, NULL, 22000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 10/11/2025 02:47)', '2025-11-09 19:47:28', '2025-11-09 19:47:28'),
 (49, 12, NULL, '1011250010', '10', 22000, 0, 1, NULL, 22000, 0, 'paid', NULL, NULL, NULL, '(diproses: syafiq Muhammad Alif, 10/11/2025 20:33)', '2025-11-10 13:33:49', '2025-11-10 13:33:49'),
 (50, 17, NULL, '1011250008', '8', 10000, 0, 1, NULL, 10000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 10/11/2025 22:07)', '2025-11-10 15:07:56', '2025-11-10 15:07:56'),
 (51, 17, NULL, '1011250009', '9', 2000, 0, 1, NULL, 2000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 10/11/2025 22:14)', '2025-11-10 15:14:35', '2025-11-10 15:14:35'),
@@ -848,7 +845,15 @@ INSERT INTO `transactions` (`id`, `user_id`, `customer_id`, `invoice`, `invoice_
 (53, 17, NULL, '1011250010', '10', 22000, 0, 1, NULL, 22000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 10/11/2025 22:18)', '2025-11-10 15:18:06', '2025-11-10 15:18:06'),
 (54, 17, NULL, '1011250010', '10', 66000, 0, 1, NULL, 66000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 10/11/2025 22:22)', '2025-11-10 15:22:34', '2025-11-10 15:22:34'),
 (55, 17, NULL, '1011250010', '10', 12000, 0, 1, NULL, 12000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 10/11/2025 22:26)', '2025-11-10 15:26:56', '2025-11-10 15:26:56'),
-(56, 17, NULL, '1111250001', '1', 2000, 0, 1, NULL, 2000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 11/11/2025 05:28)', '2025-11-10 22:28:33', '2025-11-10 22:28:33');
+(56, 17, NULL, '1111250001', '1', 2000, 0, 1, NULL, 2000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 11/11/2025 05:28)', '2025-11-10 22:28:33', '2025-11-10 22:28:33'),
+(57, 15, NULL, '1111250002', '2', 7000, 0, 1, 'online', 7000, 0, 'paid', 'paid', 'picked_up', 'PO-VH3ZYHFS', 'Marketplace pickup: abuya (0892732737)', '2025-11-11 04:09:07', '2025-11-11 04:09:07'),
+(58, 17, NULL, '2411250001', '1', 110000, 0, 1, NULL, 110000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 22:53)', '2025-11-24 15:53:31', '2025-11-24 15:53:31'),
+(59, 17, NULL, '2411250002', '2', 12000, 0, 1, NULL, 12000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 23:04)', '2025-11-24 16:04:34', '2025-11-24 16:04:34'),
+(60, 17, NULL, '2411250003', '3', 10000, 0, 1, NULL, 10000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 23:11)', '2025-11-24 16:11:26', '2025-11-24 16:11:27'),
+(61, 17, NULL, '2411250004', '4', 22000, 0, 1, NULL, 22000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 23:17)', '2025-11-24 16:17:13', '2025-11-24 16:17:13'),
+(62, 17, NULL, '2411250005', '5', 2000, 0, 1, NULL, 2000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 23:20)', '2025-11-24 16:20:47', '2025-11-24 16:20:47'),
+(63, 17, NULL, '2411250006', '6', 30000, 0, 1, NULL, 30000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 23:30)', '2025-11-24 16:30:49', '2025-11-24 16:30:49'),
+(64, 17, NULL, '2411250007', '7', 2000, 0, 1, NULL, 2000, 0, 'paid', NULL, NULL, NULL, '(diproses: jihan kirana, 24/11/2025 23:33)', '2025-11-24 16:33:41', '2025-11-24 16:33:41');
 
 -- --------------------------------------------------------
 
@@ -875,22 +880,12 @@ INSERT INTO `transaction_details` (`id`, `transaction_id`, `item_id`, `qty`, `it
 (10, 19, 311, 15, 7000, 105000, '2025-11-06 17:06:29', '2025-11-06 17:06:29'),
 (11, 22, 311, 15, 7000, 105000, '2025-11-06 18:21:11', '2025-11-06 18:21:11'),
 (12, 23, 311, 2, 7000, 14000, '2025-11-06 18:26:48', '2025-11-06 18:26:48'),
-(13, 24, 312, 25, 4000, 100000, '2025-11-06 20:24:24', '2025-11-06 20:24:24'),
-(14, 24, 311, 12, 7000, 84000, '2025-11-06 20:24:24', '2025-11-06 20:24:24'),
 (15, 25, 312, 15, 4000, 60000, '2025-11-07 14:04:52', '2025-11-07 14:04:52'),
 (16, 28, 311, 2, 7000, 14000, '2025-11-07 14:27:13', '2025-11-07 14:27:13'),
 (17, 28, 312, 5, 4000, 20000, '2025-11-07 14:27:13', '2025-11-07 14:27:13'),
-(18, 29, 311, 1, 7000, 7000, '2025-11-07 14:40:57', '2025-11-07 14:40:57'),
-(19, 29, 312, 2, 4000, 8000, '2025-11-07 14:40:57', '2025-11-07 14:40:57'),
-(20, 30, 311, 1, 7000, 7000, '2025-09-30 14:49:12', '2025-09-30 14:49:12'),
-(21, 30, 312, 4, 4000, 16000, '2025-09-30 14:49:12', '2025-09-30 14:49:12'),
-(22, 31, 312, 5, 4000, 20000, '2025-10-21 14:50:40', '2025-10-21 14:50:40'),
-(23, 32, 315, 30, 2000, 60000, '2025-10-21 14:54:54', '2025-10-21 14:54:54'),
-(24, 33, 314, 1, 22000, 22000, '2025-08-21 15:25:05', '2025-08-21 15:25:05'),
 (25, 34, 313, 1, 12000, 12000, '2025-08-21 15:25:24', '2025-08-21 15:25:24'),
 (26, 35, 315, 4, 2000, 8000, '2025-08-21 15:25:56', '2025-08-21 15:25:56'),
 (27, 36, 314, 1, 22000, 22000, '2025-08-21 15:26:16', '2025-08-21 15:26:16'),
-(28, 37, 313, 100, 12000, 1200000, '2025-08-21 15:27:50', '2025-08-21 15:27:50'),
 (29, 38, 314, 1, 22000, 22000, '2025-11-07 16:08:17', '2025-11-07 16:08:17'),
 (30, 38, 315, 1, 2000, 2000, '2025-11-07 16:08:17', '2025-11-07 16:08:17'),
 (31, 38, 312, 1, 4000, 4000, '2025-11-07 16:08:17', '2025-11-07 16:08:17'),
@@ -900,9 +895,6 @@ INSERT INTO `transaction_details` (`id`, `transaction_id`, `item_id`, `qty`, `it
 (35, 40, 312, 1, 4000, 4000, '2025-11-09 17:21:51', '2025-11-09 17:21:51'),
 (36, 40, 315, 1, 2000, 2000, '2025-11-09 17:21:51', '2025-11-09 17:21:51'),
 (37, 40, 314, 1, 22000, 22000, '2025-11-09 17:21:51', '2025-11-09 17:21:51'),
-(41, 44, 311, 1, 7000, 7000, '2025-11-09 19:40:54', '2025-11-09 19:40:54'),
-(42, 44, 315, 22, 2000, 44000, '2025-11-09 19:40:54', '2025-11-09 19:40:54'),
-(46, 46, 314, 1, 22000, 22000, '2025-11-09 19:47:28', '2025-11-09 19:47:28'),
 (50, 49, 314, 1, 22000, 22000, '2025-11-10 13:33:49', '2025-11-10 13:33:49'),
 (51, 50, 315, 5, 2000, 10000, '2025-11-10 15:07:56', '2025-11-10 15:07:56'),
 (52, 51, 315, 1, 2000, 2000, '2025-11-10 15:14:35', '2025-11-10 15:14:35'),
@@ -911,7 +903,15 @@ INSERT INTO `transaction_details` (`id`, `transaction_id`, `item_id`, `qty`, `it
 (55, 53, 315, 11, 2000, 22000, '2025-11-10 15:18:06', '2025-11-10 15:18:06'),
 (56, 54, 314, 3, 22000, 66000, '2025-11-10 15:22:34', '2025-11-10 15:22:34'),
 (57, 55, 313, 1, 12000, 12000, '2025-11-10 15:26:56', '2025-11-10 15:26:56'),
-(58, 56, 315, 1, 2000, 2000, '2025-11-10 22:28:33', '2025-11-10 22:28:33');
+(58, 56, 315, 1, 2000, 2000, '2025-11-10 22:28:33', '2025-11-10 22:28:33'),
+(59, 57, 311, 1, 7000, 7000, '2025-11-11 04:09:07', '2025-11-11 04:09:07'),
+(60, 58, 314, 5, 22000, 110000, '2025-11-24 15:53:31', '2025-11-24 15:53:31'),
+(61, 59, 313, 1, 12000, 12000, '2025-11-24 16:04:34', '2025-11-24 16:04:34'),
+(62, 60, 315, 5, 2000, 10000, '2025-11-24 16:11:27', '2025-11-24 16:11:27'),
+(63, 61, 315, 11, 2000, 22000, '2025-11-24 16:17:13', '2025-11-24 16:17:13'),
+(64, 62, 315, 1, 2000, 2000, '2025-11-24 16:20:47', '2025-11-24 16:20:47'),
+(65, 63, 315, 15, 2000, 30000, '2025-11-24 16:30:49', '2025-11-24 16:30:49'),
+(66, 64, 315, 1, 2000, 2000, '2025-11-24 16:33:41', '2025-11-24 16:33:41');
 
 -- --------------------------------------------------------
 
@@ -943,14 +943,15 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `username`, `email`, `phone`, `address`, `email_verified_at`, `password`, `role`, `position`, `picture`, `remember_token`, `created_at`, `updated_at`, `is_active`) VALUES
 (11, 'Admin', 'admin', 'admin@example.com', NULL, NULL, NULL, '$2y$12$Fsrtrf5lhPBp7bvFsxlj5OYahk.W.5zPE0DWjqfrT/pO9563n3oJe', 'owner', 'Owner', 'profile.jpg', NULL, '2025-11-03 19:01:38', '2025-11-03 19:01:38', 1),
-(12, 'syafiq Muhammad Alif', 'syafiq', 'syafiqma12@gmail.com', '0895701033483', NULL, NULL, '$2y$12$h4BahVKKSHlJi7wq4z0KUe4cBLF/N66WBRMk0Q2XvcErxMO13u1I2', 'supervisor', 'Manager Operasional', '1762323210.jpg', NULL, '2025-11-04 23:13:30', '2025-11-04 23:13:30', 1),
-(14, 'riski halimawan', 'riski', 'Riskihal1221@gmail.com', '089211223322', NULL, NULL, '$2y$12$/HzTkTGEjwgiMqGj0WSFN.DtK0NTIjYP8Q0cbrEFKKOQ/UcjbJUt6', 'cashier', 'Kasir', '1762323377.jpg', NULL, '2025-11-04 23:16:17', '2025-11-04 23:16:17', 1),
-(15, 'abuya', 'abuya', 'abuya12@gmail.com', '08923232', 'Jalan Griyas', NULL, '$2y$12$w9TB6wEzmqJoaHYHxZEWjOJUWRmwbhaH/IMMrmTnR0/maRxj51JQu', 'customer', NULL, 'profile.jpg', NULL, '2025-11-04 23:17:31', '2025-11-04 23:17:31', 1),
-(16, 'berlian permata suci', 'berlian', 'berlianpsuci22@Gmail.com', '0892452222', 'perumahan mitra agung', NULL, '$2y$12$Dnv3MpN1dQQt3Qp.G.YJZO4IGqbWohtAL0FRjZt11Fp.WYBuWbzcC', 'customer', NULL, 'profile.jpg', NULL, '2025-11-04 23:18:04', '2025-11-04 23:18:04', 1),
-(17, 'jihan kirana', 'jihank', 'jihank12@gmail.com', '08989612983', NULL, NULL, '$2y$12$.cpWDLmSbsHyDGCHoW5qROOhF/qhdVzdg3Hdf0a6yIow8BRoqbNvu', 'admin', 'Admin Gudang', '1762331727.jpg', NULL, '2025-11-05 01:35:27', '2025-11-05 01:35:27', 1),
-(18, 'farhan', 'farhan', 'farhan125@gmail.com', '089520944437', 'pakjo', NULL, '$2y$12$XdIQuqZ6hadRyOgxyV5cPu8oqQzz9J1PAedNXpzZkwoGqz1BnBpuC', 'customer', NULL, 'profile.jpg', NULL, '2025-11-09 17:39:03', '2025-11-09 18:20:10', 0),
-(19, 'farhan', 'farhan12', 'farhan1255@gmail.com', '0893434323342', 'pakjo', NULL, '$2y$12$K3i3NfEhYBHyldn.EwPxM.4gWDutSeqijRVtJtFZGuxX0mRAJ1MJS', 'customer', NULL, 'profile.jpg', NULL, '2025-11-09 18:25:49', '2025-11-09 18:25:49', 1),
-(20, 'hafiz', 'hafiz', 'hafiz12@gmail.com', '0895512212', 'gandus', NULL, '$2y$12$rhN5O9mbx0p9pQad17e9KeC/81lfC/KQMAYr3.8yFt7yEnewnV/HK', 'customer', NULL, 'profile.jpg', NULL, '2025-11-09 21:44:52', '2025-11-09 21:44:52', 1);
+(12, 'syafiq Muhammad Alif', 'syafiq', 'mhdalif12555@Gmail.com', '0895701033483', NULL, NULL, '$2y$12$h4BahVKKSHlJi7wq4z0KUe4cBLF/N66WBRMk0Q2XvcErxMO13u1I2', 'supervisor', 'Manager Operasional', '1762323210.jpg', NULL, '2025-11-04 23:13:30', '2025-11-04 23:13:30', 1),
+(14, 'riski halimawan', 'riski', 'tumbalone12556@gmail.com', '089211223322', NULL, NULL, '$2y$12$/HzTkTGEjwgiMqGj0WSFN.DtK0NTIjYP8Q0cbrEFKKOQ/UcjbJUt6', 'cashier', 'Kasir', '1762323377.jpg', NULL, '2025-11-04 23:16:17', '2025-11-04 23:16:17', 1),
+(15, 'abuya', 'abuya', 'tumbalone12555@gmail.com', '08923232', 'Jalan Griyas', NULL, '$2y$12$RFiVaRqqgXfbeZys.mAOleK1PXthq8nXdNj6ldj/I3WVJbAvs2rFa', 'customer', NULL, 'profile.jpg', 'LnMjuvJPx5FgQGGCc7Kholp8crKNUsLCmF22k6meVyOcNyxbDXyaWb6QKTMj', '2025-11-04 23:17:31', '2025-11-11 17:07:20', 1),
+(16, 'berlian permata suci', 'berlian', 'tumbalone12554@gmail.com', '0892452222', 'perumahan mitra agung', NULL, '$2y$12$ZafATGobskfldVhykn9QV./0X49IN2c7YtU.V.prFZbK3WTRd.cKe', 'customer', NULL, 'profile.jpg', 'IS4HO56pzVOJUGCpQwJTyRruiVEYSoqvRIRLy2HjSN4UqxHbcc6f2SCYP8aK', '2025-11-04 23:18:04', '2025-11-11 16:38:37', 1),
+(17, 'jihan kirana', 'jihank', 'tumbalone12553@gmail.com', '08989612983', NULL, NULL, '$2y$12$.cpWDLmSbsHyDGCHoW5qROOhF/qhdVzdg3Hdf0a6yIow8BRoqbNvu', 'admin', 'Admin Gudang', '1762331727.jpg', NULL, '2025-11-05 01:35:27', '2025-11-05 01:35:27', 1),
+(18, 'farhan', 'farhan', 'tumbalone12552@gmail.com', '089520944437', 'pakjo', NULL, '$2y$12$XdIQuqZ6hadRyOgxyV5cPu8oqQzz9J1PAedNXpzZkwoGqz1BnBpuC', 'customer', NULL, 'profile.jpg', NULL, '2025-11-09 17:39:03', '2025-11-09 18:20:10', 0),
+(19, 'farhan', 'farhan12', 'tumbalone12551@gmail.com', '0893434323342', 'pakjo', NULL, '$2y$12$K3i3NfEhYBHyldn.EwPxM.4gWDutSeqijRVtJtFZGuxX0mRAJ1MJS', 'customer', NULL, 'profile.jpg', NULL, '2025-11-09 18:25:49', '2025-11-09 18:25:49', 1),
+(20, 'hafiz', 'hafiz', 'tumbalone1255@gmail.com', '0895512212', 'gandus', NULL, '$2y$12$iVo8FFjSG3lc7R711r5bfu8XngkGruDSrMnTs5IMbLJQj/0iFiLJW', 'customer', NULL, 'profile.jpg', '4BbOgL63ccWECoZE0X6yWQ2xciymFCWT57aT600BXUN06gXeOL98vRbeNZ6n', '2025-11-09 21:44:52', '2025-11-11 17:42:45', 1),
+(21, 'Syafiq Muhammad Alif', 'alif12', 'sq.ey115@gmail.com', '08957011111033483', 'jalan griya asri gandus bloook k', NULL, '$2y$12$2kQP3bwSKo1dkouQRSE3RuGYqzWT4pXw9S2Wis2CKvOVpVtuRqo6e', 'customer', NULL, 'profile.jpg', 'Z1Ik6OLUFDm57kx4PW5hc0te0scVRv1dkLSKPxui7MF4RmIbgo94RBaPm3vy', '2025-11-11 15:58:28', '2025-11-11 17:41:44', 1);
 
 -- --------------------------------------------------------
 
@@ -1114,6 +1115,12 @@ ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD KEY `password_reset_tokens_email_index` (`email`);
+
+--
 -- Indexes for table `payment_methods`
 --
 ALTER TABLE `payment_methods`
@@ -1222,19 +1229,19 @@ ALTER TABLE `wholesale_prices`
 -- AUTO_INCREMENT for table `absences`
 --
 ALTER TABLE `absences`
-  MODIFY `id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
+  MODIFY `id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 
 --
 -- AUTO_INCREMENT for table `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -1294,7 +1301,7 @@ ALTER TABLE `invoices`
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=316;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=317;
 
 --
 -- AUTO_INCREMENT for table `item_supplier`
@@ -1306,19 +1313,19 @@ ALTER TABLE `item_supplier`
 -- AUTO_INCREMENT for table `marketplace_orders`
 --
 ALTER TABLE `marketplace_orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `marketplace_order_items`
 --
 ALTER TABLE `marketplace_order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `payment_methods`
@@ -1330,25 +1337,25 @@ ALTER TABLE `payment_methods`
 -- AUTO_INCREMENT for table `purchase_orders`
 --
 ALTER TABLE `purchase_orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `purchase_order_items`
 --
 ALTER TABLE `purchase_order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
 
 --
 -- AUTO_INCREMENT for table `purchase_requests`
 --
 ALTER TABLE `purchase_requests`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `purchase_request_items`
 --
 ALTER TABLE `purchase_request_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
 
 --
 -- AUTO_INCREMENT for table `stock_movement_analyses`
@@ -1360,31 +1367,31 @@ ALTER TABLE `stock_movement_analyses`
 -- AUTO_INCREMENT for table `suppliers`
 --
 ALTER TABLE `suppliers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `supplier_products`
 --
 ALTER TABLE `supplier_products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `transaction_details`
 --
 ALTER TABLE `transaction_details`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `wholesale_prices`

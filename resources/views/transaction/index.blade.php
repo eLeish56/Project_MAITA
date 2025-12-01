@@ -296,31 +296,16 @@
               </div>
             </div>
           </div>
-          <!-- Payment Details Card -->
+          <!-- Payment Details Card - SISTEM HANYA TUNAI -->
           <div class="card mb-3 shadow-sm">
             <div class="card-body">
               <h6 class="card-subtitle mb-3 text-muted">
-                <i class="fas fa-credit-card me-2"></i>
-                Detail Pembayaran
+                <i class="fas fa-money-bill-wave me-2"></i>
+                Detail Pembayaran - Tunai
               </h6>
               
               <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="payment_method" class="form-label small text-muted">
-                    Metode Pembayaran <span class="text-danger">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-group-text bg-white">
-                      <i class="fas fa-wallet text-primary"></i>
-                    </span>
-                    <select class="form-select" id="payment_method">
-                      @foreach ($payment_methods as $payment_method)
-                        <option value="{{ $payment_method->name }}">{{ $payment_method->name }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-
+                {{-- Field Diskon --}}
                 <div class="col-md-6">
                   <label for="discount" class="form-label small text-muted">
                     Diskon (Rp.)
@@ -335,7 +320,8 @@
                 </div>
               </div>
 
-              <div id="cash" class="mt-3">
+              {{-- Field Uang Tunai (Mandatory) --}}
+              <div class="mt-3">
                 <label for="amount" class="form-label small text-muted">
                   Uang Tunai (Rp.) <span class="text-danger">*</span>
                 </label>
@@ -350,25 +336,6 @@
                   </button>
                 </div>
                 <input type="hidden" class="form-control" id="amount_int" value="0" readonly>
-              </div>
-            </div>
-          </div>
-          <div id="cashless" class="card mb-3 shadow-sm" style="display: none;">
-            <div class="card-body">
-              <h6 class="card-subtitle mb-3 text-muted">
-                <i class="fas fa-qrcode me-2"></i>
-                Pembayaran Non-Tunai
-              </h6>
-              <div class="form-group">
-                <label for="payment_code" class="form-label small text-muted">
-                  Kode Pembayaran
-                </label>
-                <div class="input-group">
-                  <span class="input-group-text bg-white">
-                    <i class="fas fa-key text-primary"></i>
-                  </span>
-                  <input type="text" class="form-control" id="payment_code" placeholder="Masukkan kode pembayaran">
-                </div>
               </div>
             </div>
           </div>
@@ -418,26 +385,30 @@
       }
     }
 
+    // FUNCTION PROSES TRANSAKSI - HANYA TUNAI
+    // Semua transaksi menggunakan metode pembayaran tunai
+    // Tidak ada pilihan metode pembayaran lagi
     function proccess_transaction() {
       var customer_name = $('#customer_name').val();
       var invoice = $('#invoice').val();
       var invoice_no = $('#invoice_no').val();
-      var payment_method = $('#payment_method').val();
+      // REMOVED: payment_method - semua menggunakan 'Tunai'
+      var payment_method = 'Tunai'; // FIXED: hanya tunai
       var grand_total = parseInt($('#grand_total_int').val());
       var amount = parseInt($('#amount_int').val());
       var change = parseInt($('#change_int').val());
       var discount = parseInt($('#discount_int').val());
-      var payment_code = $('#payment_code').val();
+      // REMOVED: payment_code - tidak digunakan lagi
       var note = $('#note').val();
 
+      // VALIDASI DISKON
       if (discount > grand_total) {
         return toastr.warning("Diskon tidak boleh lebih besar dari total");
       }
 
-      if (payment_method == 'Tunai') {
-        if (amount < grand_total) {
-          return toastr.warning("Jumlah uang tidak mencukupi");
-        }
+      // VALIDASI UANG TUNAI (selalu wajib karena hanya tunai)
+      if (amount < grand_total) {
+        return toastr.warning("Jumlah uang tidak mencukupi");
       }
 
       if (!confirm('Apakah anda yakin ingin melanjutkan transaksi ini?')) return false;
@@ -449,21 +420,28 @@
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
+        // DATA TRANSAKSI - HANYA TUNAI
         data: {
           invoice,
           invoice_no,
           customer_name,
-          payment_method,
+          payment_method, // FIXED: 'Tunai' (fixed value)
           total: grand_total,
           amount,
           change,
           discount,
-          payment_code,
+          // REMOVED: payment_code - tidak digunakan lagi
           note,
         },
         success: function(data) {
           if (data.status == 'success') {
             toastr.success(data.message);
+            
+            // Tampilkan modal cetak nota dengan data dari response
+            $('#print_receipt_invoice').text(data.invoice);
+            $('#print_receipt_btn').attr('data-transaction-id', data.transaction_id);
+            $('#print_receipt_modal').modal('show');
+            
             clear_cart(false);
             $('#payment_modal').modal('hide');
           } else {
@@ -476,11 +454,14 @@
       });
     }
 
+    // FUNCTION HITUNG TOTAL DENGAN DISKON
+    // Kalkulasi total pembayaran untuk sistem tunai
     function count_grand_total() {
       var total_int = parseInt($('#total_int').val());
       var discount = parseInt($('#discount_int').val());
       var grand_total = total_int - discount;
 
+      // Pastikan grand_total tidak negatif
       if (discount > grand_total) {
         $('#grand_total_int').val(grand_total);
         $('#grand_total').val(indo_currency(parseInt($('#grand_total_int').val()), true));
@@ -490,6 +471,8 @@
       }
     }
 
+    // FUNCTION AMBIL DAFTAR BARANG
+    // Menampilkan modal dengan semua barang yang tersedia
     function get_items(showModal = true) {
       $.ajax({
         url: '{{ route('transaction.get_items') }}',
@@ -505,6 +488,8 @@
       });
     }
 
+    // FUNCTION AMBIL DETAIL BARANG
+    // Mengisi field barang dari modal daftar items
     function add_to_draft_cart(id) {
       $.ajax({
         url: '/inventory/item/' + id,
@@ -522,6 +507,8 @@
       });
     }
 
+    // FUNCTION TAMBAH KE KERANJANG
+    // Validasi stok dan tambahkan barang ke keranjang untuk transaksi tunai
     function add_to_cart() {
       count_stock();
       if ($('#product_id').val() == '') {
@@ -553,6 +540,8 @@
       });
     }
 
+    // FUNCTION HITUNG TOTAL BARANG
+    // Menjumlahkan subtotal dari semua item di keranjang
     function count_total() {
       var total = 0;
       $('.cart_subtotal_int').each(function() {
@@ -562,6 +551,8 @@
       $('#total').text(indo_currency(total, true));
     }
 
+    // FUNCTION AMBIL KERANJANG
+    // Menampilkan daftar item dalam keranjang dan hitung total
     function get_cart() {
       $.ajax({
         url: '{{ route('cart.index') }}',
@@ -574,6 +565,8 @@
       });
     }
 
+    // FUNCTION CEK STOK BARANG
+    // Mengecek ketersediaan stok untuk barang yang dipilih
     function count_stock() {
       if ($('#product_id').val() == '') return;
 
@@ -589,6 +582,8 @@
       });
     }
 
+    // FUNCTION KOSONGKAN KERANJANG
+    // Hanya reset nilai untuk pembayaran tunai
     function clear_cart(confirmation = false) {
       if (empty_cart()) return false;
 
@@ -596,10 +591,9 @@
         if (!confirm('Apakah anda yakin ingin mengosongkan keranjang?')) return;
       }
 
-      $('#payment_method').val('Tunai');
-      $('#cash').show();
-      $('#cashless').hide();
-      $('#payment_code').val('');
+      // REMOVED: payment_method reset - tidak perlu
+      // REMOVED: cashless toggle - tidak perlu
+      // REMOVED: payment_code - tidak digunakan
       $('#discount').val(0);
       $('#discount_int').val(0);
       $('#amount').val(0);
@@ -624,6 +618,8 @@
       });
     }
 
+    // FUNCTION HITUNG TOTAL ITEM
+    // Menghitung jumlah total item dalam keranjang
     function count_total_items() {
       var total = 0;
       $('.cart_qty').each(function() {
@@ -632,6 +628,8 @@
       $('#total_items').val(total);
     }
 
+    // FUNCTION AMBIL NOMOR INVOICE
+    // Mengambil nomor invoice baru dari server untuk transaksi baru
     function get_invoice() {
       $.ajax({
         url: '{{ route('transaction.get_invoice') }}',
@@ -644,10 +642,14 @@
       });
     }
 
+    // FUNCTION FOKUS KE INPUT BARANG
+    // Mengatur fokus ke field pencarian barang
     function focus_product_column() {
       $('#product_name').focus();
     }
 
+    // FUNCTION CARI BARANG BERDASARKAN KODE
+    // Mencari dan memilih barang otomatis ketika kode dicari
     function search_by_code() {
       $.ajax({
         url: '{{ route('transaction.get_items') }}',
@@ -683,6 +685,8 @@
       });
     }
 
+    // FUNCTION BUKA MODAL PEMBAYARAN
+    // Menampilkan modal pembayaran untuk sistem tunai
     function pay() {
       if (empty_cart()) return false;
 
@@ -692,6 +696,8 @@
       $('#payment_modal').modal('show');
     }
 
+    // FUNCTION CEK KERANJANG KOSONG
+    // Memastikan ada barang dalam keranjang sebelum melanjutkan
     function empty_cart() {
       if (parseInt($('#total_int').val()) < 1) {
         toastr.warning("Tidak ada barang yang dibeli");
@@ -699,6 +705,8 @@
       }
     }
 
+    // FUNCTION SIMPAN TRANSAKSI
+    // Menyimpan transaksi untuk keperluan archiving atau riwayat
     function save_transaction() {
       var customer_id = $('#customer').val();
       var invoice = $('#invoice').val();
@@ -737,6 +745,8 @@
       });
     }
 
+    // FUNCTION UPDATE DETAIL PELANGGAN
+    // Menampilkan informasi kontak pelanggan yang dipilih
     function updateCustomerDetails() {
       const selectedOption = $('#customer option:selected');
       if (selectedOption.val() != "0") {
@@ -750,12 +760,16 @@
       }
     }
 
+    // ============================================================
+    // INISIALISASI APLIKASI POS - SISTEM TUNAI
+    // ============================================================
     $(document).ready(function() {
+      // Load data awal
       get_cart();
       get_items(false);
       get_invoice();
 
-      // Initialize Select2 for better search and selection
+      // INISIALISASI SELECT2 UNTUK PENCARIAN PELANGGAN
       $('#customer').select2({
         placeholder: "Pilih Pelanggan",
         allowClear: true,
@@ -764,23 +778,29 @@
         dropdownParent: $('#payment_modal')
       });
 
-      // Add customer change handler
+      // EVENT: Saat pelanggan dipilih, tampilkan detail kontak
       $('#customer').on('change', updateCustomerDetails);
 
+      // EVENT: Validasi maksimum kuantitas sesuai stok
       $('#product_qty').on('keyup', set_max_min_qty);
       $('#product_qty').on('change', set_max_min_qty);
 
+      // EVENT: Auto fokus ke search field saat modal items dibuka
       $('#all_items_modal').on('shown.bs.modal', function() {
         $('input[type="search"]').focus();
       });
 
+      // EVENT: Auto fokus ke input uang saat modal pembayaran dibuka
       $('#payment_modal').on('shown.bs.modal', function() {
         $('#amount').focus();
       });
 
+      // EVENT: Kembalikan fokus ke product field saat modal ditutup
       $('#all_items_modal').on('hidden.bs.modal', focus_product_column);
       $('#payment_modal').on('hidden.bs.modal', focus_product_column);
 
+      // EVENT: CARI BARANG ATAU TAMBAH KE KERANJANG
+      // Ctrl+Enter = Buka modal daftar barang, Enter = Tambah ke keranjang
       $('#product_name').on('keyup', function(e) {
         if (e.ctrlKey && e.keyCode == 13) {
           get_items();
@@ -791,24 +811,20 @@
         search_by_code();
       });
 
+      // EVENT: Enter di field kuantitas = Tambah ke keranjang
       $('#product_qty').on('keyup', function(e) {
         if (e.keyCode == 13) add_to_cart();
       });
 
+      // EVENT: Tombol bayar = Buka modal pembayaran
       $('#pay_btn').on('click', pay);
 
-      $('#payment_method').on('change', function() {
-        if ($(this).val() == 'Tunai') {
-          $('#cash').show();
-          $('#cashless').hide();
-        } else {
-          $('#cash').hide();
-          $('#cashless').show();
-        }
-      });
-
+      // REMOVED: Payment method change handler - tidak perlu karena hanya tunai
+      // (#payment_method tidak ada di UI lagi)
+      
+      // EVENT: INPUT UANG PEMBAYARAN
+      // Hitung kembalian secara otomatis (hanya tunai)
       $('#amount').on('keyup', function(e) {
-
         $('#amount_int').val(parseInt($('#amount').val().replaceAll('.', '')));
         set_indo_currency('#amount');
 
@@ -816,13 +832,17 @@
           $('#amount_int').val(0);
         }
 
+        // Hitung kembalian untuk sistem tunai
         var change = parseInt($('#amount_int').val()) - parseInt($('#grand_total_int').val());
         $('#change').val(indo_currency(change, true));
         $('#change_int').val(change);
 
+        // Enter = Proses pembayaran
         if (e.keyCode == '13') proccess_transaction();
       });
 
+      // EVENT: TOMBOL UANG PAS
+      // Set uang pembayaran sama dengan total (kembalian 0)
       $('#exact_money').on('click', function() {
         if (parseInt($('#grand_total_int').val()) < 0) return false;
 
@@ -832,6 +852,8 @@
         $('#change_int').val(0);
       });
 
+      // EVENT: INPUT DISKON
+      // Hitung ulang total setiap ada perubahan diskon (hanya tunai)
       $('#discount').on('keyup', function(e) {
         set_indo_currency('#discount');
         $('#discount_int').val(parseInt($('#discount').val().replaceAll('.', '')));
@@ -840,18 +862,101 @@
         }
         count_grand_total();
 
+        // Enter = Proses pembayaran
         if (e.keyCode == '13') proccess_transaction();
       });
 
+      // EVENT: TOMBOL PROSES PEMBAYARAN
+      // Proses transaksi tunai
       $('#proccess_transaction_btn').on('click', proccess_transaction);
 
+      // EVENT: TOMBOL BATAL
+      // Kosongkan keranjang dan pembayaran
       $('#cancel_btn').on('click', clear_cart);
 
+      // EVENT: TOMBOL SIMPAN
+      // Simpan transaksi untuk riwayat
       $('#save_btn').on('click', save_transaction);
 
+      // EVENT: TOMBOL BUKA MODAL BARANG
+      // Tampilkan daftar barang yang tersedia
       $('#all_items_modal_btn').on('click', get_items);
 
+      // EVENT: TOMBOL TAMBAH KE KERANJANG
+      // Tambahkan barang yang dipilih ke keranjang
       $('#add_to_cart').on('click', add_to_cart);
+
+      // EVENT: TOMBOL CETAK NOTA
+      // Buka PDF nota dalam tab baru untuk dicetak
+      $('#print_receipt_btn').on('click', function() {
+        var transactionId = $(this).attr('data-transaction-id');
+        window.open('/transaction/' + transactionId + '/print-receipt', '_blank');
+        $('#print_receipt_modal').modal('hide');
+      });
+
+      // EVENT: MODAL DITUTUP TANPA CETAK
+      // Refresh keranjang setelah transaksi selesai
+      $('#print_receipt_modal').on('hidden.bs.modal', function() {
+        get_cart();
+      });
     });
   </script>
+
+  <!-- Modal Cetak Nota - Selaras dengan Design Transaction Page -->
+  <div class="modal fade" id="print_receipt_modal" tabindex="-1" aria-labelledby="printReceiptLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg">
+        <!-- Header dengan Gradient -->
+        <div class="modal-header bg-primary text-white border-0 pb-4">
+          <div class="w-100 text-center">
+            <h5 class="modal-title" id="printReceiptLabel">
+              <i class="fas fa-check-circle me-2"></i>
+              Transaksi Berhasil!
+            </h5>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; right: 15px; top: 15px;"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body text-center py-4">
+          <!-- Success Icon Animation -->
+          <div class="mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background-color: #e7f5ff; border-radius: 50%;">
+              <i class="fas fa-check-circle text-primary" style="font-size: 2.5rem;"></i>
+            </div>
+          </div>
+
+          <!-- Invoice Number -->
+          <div class="mb-4">
+            <p class="text-muted small mb-1">Nomor Nota Transaksi</p>
+            <p class="h6 text-primary mb-0">
+              <strong id="print_receipt_invoice">-</strong>
+            </p>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+          <!-- Message -->
+          <div class="mt-4">
+            <p class="text-muted mb-0">
+              <i class="fas fa-info-circle me-2" style="color: #0d6efd;"></i>
+              <span>Apakah Anda ingin mencetak nota untuk transaksi ini?</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer bg-light border-0 pt-3 pb-3">
+          <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal" style="padding: 8px 24px;">
+            <i class="fas fa-times me-2"></i>
+            <span>Tidak, Lewati</span>
+          </button>
+          <button type="button" class="btn btn-primary rounded-3" id="print_receipt_btn" style="padding: 8px 24px;">
+            <i class="fas fa-print me-2"></i>
+            <span>Ya, Cetak Nota</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </x-layout>

@@ -287,6 +287,9 @@
                 "searchable": false
               }]
             });
+            
+            // Focus pada search input
+            $('input[type="search"]').focus();
           },
           error: function(xhr, status, error) {
             toastr.error('Terjadi kesalahan saat memuat data: ' + error);

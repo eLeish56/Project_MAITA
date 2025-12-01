@@ -63,18 +63,21 @@
                 data-note="{{ $transaction->note }}"
                 data-updated_at="{{ $transaction->updated_at->locale('id')->isoFormat('dddd, D MMMM Y') }}"
                 data-time="{{ $transaction->updated_at->locale('id')->isoFormat('HH:mm:ss') }}"
-                data-cashier="{{ $transaction->user->name }}" onclick="showDetail(this)">
+                data-cashier="{{ $transaction->user->name }}" onclick="showDetail(this)" title="Lihat Detail">
                 <i class="fas fa-info-circle"></i>
               </button>
               <button id="transaction_detail_modal_btn" class="btn btn-xs btn-primary text-white"
-                data-id="{{ $transaction->id }}" onclick="getTransactionDetail(this)">
+                data-id="{{ $transaction->id }}" onclick="getTransactionDetail(this)" title="Lihat Item">
                 <i class="fas fa-shopping-bag"></i>
               </button>
+              <a href="{{ route('transaction.print-receipt', $transaction->id) }}" target="_blank" class="btn btn-xs btn-success text-white" title="Cetak Nota">
+                <i class="fas fa-print"></i>
+              </a>
               <form action="{{ route('transaction.destroy', $transaction->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-xs btn-danger text-white"
-                  onclick="return confirm('Apakah anda yakin ingin menghapus data penjualan ini?')">
+                  onclick="return confirm('Apakah anda yakin ingin menghapus data penjualan ini?')" title="Hapus">
                   <i class="fas fa-trash"></i>
                 </button>
               </form>
@@ -83,20 +86,5 @@
         </tr>
       @endforeach
     </tbody>
-  </table>
 </div>
 
-<script>
-  $(document).ready(function() {
-    $('#report-table').DataTable({
-      "language": datatableLanguageOptions,
-      "autoWidth": false,
-      "columnDefs": [{
-        "targets": [6],
-        "orderable": false,
-        "searchable": false
-      }]
-    });
-    $('input[type="search"]').focus();
-  });
-</script>
