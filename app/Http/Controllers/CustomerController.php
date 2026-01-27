@@ -19,7 +19,7 @@ class CustomerController extends Controller
     public function index(): View
     {
         $customers = User::where('role', 'customer')
-            ->where('is_active', true)
+            ->where('status', 'active')
             ->select([
                 'users.*',
                 DB::raw('(SELECT COUNT(*) FROM transactions t WHERE t.user_id = users.id) as pos_transactions_count'),
@@ -68,7 +68,7 @@ class CustomerController extends Controller
         // create a user with role 'customer'
         User::create(array_merge($request->only(['name','phone','address']), [
             'role' => 'customer',
-            'is_active' => true,
+            'status' => 'active',
             // password intentionally left blank/random; if customers need login flow, set appropriately
             'password' => bcrypt(\Illuminate\Support\Str::random(32)),
         ]));

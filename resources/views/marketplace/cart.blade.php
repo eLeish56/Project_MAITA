@@ -29,8 +29,10 @@
         .product-img {
             width: 80px;
             height: 80px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 0.5rem;
+            background-color: #f8f9fa;
+            padding: 4px;
         }
 
         .table > :not(caption) > * > * {

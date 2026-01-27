@@ -46,6 +46,7 @@ class InvoiceController extends Controller
             'due_date'       => 'nullable|date',
             'amount'         => 'required|numeric|min:0',
             'invoice_file'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'payment_proof'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $po = PurchaseOrder::findOrFail($purchaseOrderId);
@@ -57,6 +58,12 @@ class InvoiceController extends Controller
                 $invoiceFilePath = $request->file('invoice_file')->store('invoices', 'public');
             }
 
+            // Store payment proof file
+            $paymentProofPath = null;
+            if ($request->hasFile('payment_proof')) {
+                $paymentProofPath = $request->file('payment_proof')->store('payment_proofs', 'public');
+            }
+
             $invoice = Invoice::create([
                 'purchase_order_id' => $po->id,
                 'invoice_number'    => $request->invoice_number,
@@ -65,6 +72,7 @@ class InvoiceController extends Controller
                 'amount'            => $request->amount,
                 'status'            => 'completed', // Langsung set status completed
                 'invoice_file'      => $invoiceFilePath,
+                'payment_proof'     => $paymentProofPath,
             ]);
 
             // Update PO status to completed
@@ -74,8 +82,8 @@ class InvoiceController extends Controller
             session()->flash('success', 'Invoice berhasil dibuat dan proses PO telah selesai');
 
             DB::commit();
-            // Redirect back to procurement dashboard after adding an invoice
-            return redirect()->route('procurement.index')->with('success', 'Invoice berhasil ditambahkan');
+            // Redirect back to new purchase orders after adding an invoice
+            return redirect()->route('new-purchase-orders.index')->with('success', 'Invoice berhasil ditambahkan');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menyimpan invoice: ' . $e->getMessage()]);

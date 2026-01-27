@@ -111,15 +111,6 @@
             <li class="nav-item d-none d-lg-block"><a class="nav-link sidebartoggler waves-effect waves-light"
                 href="javascript:void(0)" data-sidebartype="mini-sidebar"><i class="mdi mdi-menu font-24"></i></a>
             </li>
-            <!-- ============================================================== -->
-            <!-- transaction -->
-            <!-- ============================================================== -->
-            <li class="nav-item">
-              <a class="nav-link" href="{{ route('transaction.index') }}">
-                <span class="d-none d-md-block">Transaksi</span>
-                <span class="d-block d-md-none"><i class="mdi mdi-cart"></i></span>
-              </a>
-            </li>
           </ul>
           <!-- ============================================================== -->
           <!-- Right side toggle and nav items -->
@@ -171,7 +162,7 @@
                 <i class="mdi mdi-view-dashboard"></i><span class="hide-menu">Dashboard</span>
               </a>
             </li>
-            @if(in_array(auth()->user()->role, ['admin','owner']))
+            @if(in_array(auth()->user()->role, ['owner']))
               <li class="sidebar-item {{ request()->is('customer/*') ? 'selected' : '' }}">
                 <a class="sidebar-link waves-effect waves-dark" href="{{ route('customer.index') }}"
                   aria-expanded="false">
@@ -179,7 +170,7 @@
                 </a>
               </li>
             @endif
-            @if(in_array(auth()->user()->role, ['admin','owner','supervisor']))
+            @if(in_array(auth()->user()->role, ['admin','supervisor']))
             <li class="sidebar-item {{ request()->is('inventory/*') ? 'selected' : '' }}">
               <a class="sidebar-link has-arrow waves-effect waves-dark " href="javascript:void(0)"
                 aria-expanded="false">
@@ -228,25 +219,29 @@
               </ul>
             </li>
             @endif
-            @if (in_array(auth()->user()->role, ['owner','supervisor','admin']))
+            @if (in_array(auth()->user()->role, ['owner','supervisor']))
               <li class="sidebar-item {{ request()->is('payment-method/*') ? 'selected' : '' }}">
                 <a class="sidebar-link waves-effect waves-dark" href="{{ route('payment-method.index') }}"
                   aria-expanded="false">
                   <i class="mdi mdi-cash-multiple"></i><span class="hide-menu">Metode Pembayaran</span>
                 </a>
               </li>
+              @if(in_array(auth()->user()->role, ['admin','supervisor','owner']))
               <li class="sidebar-item {{ request()->is('user/*') ? 'selected' : '' }}">
                 <a class="sidebar-link waves-effect waves-dark " href="{{ route('user.index') }}"
                   aria-expanded="false">
                   <i class="mdi mdi-account-multiple"></i><span class="hide-menu">Pegawai</span>
                 </a>
               </li>
+              @endif
+              @if(in_array(auth()->user()->role, ['owner','supervisor']))
               <li class="sidebar-item">
                 <a class="sidebar-link waves-effect waves-dark " href="{{ route('absence.index') }}"
                   aria-expanded="false">
                   <i class="mdi mdi-timer"></i><span class="hide-menu">Absensi</span>
                 </a>
               </li>
+              @endif
             @endif
             @php
               $isTransaksiActive =
@@ -255,6 +250,7 @@
                 request()->is('transaction/online-orders*');
             @endphp
 
+            @if(!in_array(auth()->user()->role, ['owner']))
             <li class="sidebar-item {{ $isTransaksiActive ? 'selected' : '' }}">
               <a class="sidebar-link has-arrow waves-effect waves-dark"
                 href="javascript:void(0)"
@@ -281,6 +277,7 @@
                 </li>
               </ul>
             </li>
+            @endif
 
             @if(in_array(auth()->user()->role, ['owner','admin','supervisor']))
             <li class="sidebar-item">

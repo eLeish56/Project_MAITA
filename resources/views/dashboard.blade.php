@@ -101,7 +101,7 @@
           <div class="box bg-cyan">
             <div class="row align-items-center">
               <div class="col-md-8">
-                <h2 class="fw-bold text-white">Rp. 0</h2>
+                <h2 class="fw-bold text-white">@indo_currency($income_this_month)</h2>
                 <h6 class="text-white fw-normal">Pendapatan Bulan Ini</h6>
               </div>
               <div class="col-md-4">

@@ -153,7 +153,7 @@
                       <td>
                         <img src="{{ $it->photo_url ?? asset('images/no-image.png') }}"
                              class="rounded" 
-                             style="width:60px;height:60px;object-fit:cover;">
+                             style="width:60px;height:60px;object-fit:contain;background-color:#f8f9fa;padding:3px;">
                       </td>
                       <td>
                         <div class="fw-semibold">{{ $it->name }}</div>

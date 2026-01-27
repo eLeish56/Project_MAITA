@@ -32,18 +32,16 @@ class NewPurchaseOrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Ambil PO yang masih dalam proses
-        $ongoingPOs = PurchaseOrder::with(['supplier', 'purchaseRequest'])
-            ->whereIn('status', ['draft', 'sent'])
+        // Ambil PO yang masih dalam proses (draft, sent, confirmed, received - belum ada invoice)
+        $ongoingPOs = PurchaseOrder::with(['supplier', 'purchaseRequest', 'invoices'])
+            ->whereIn('status', ['draft', 'sent', 'confirmed', 'received', 'validated'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Ambil PO yang sudah selesai (completed dan memiliki invoice yang paid)
+        // Ambil PO yang sudah selesai (completed dan memiliki invoice)
         $completedPOs = PurchaseOrder::with(['supplier', 'purchaseRequest', 'goodsReceipts', 'invoices'])
             ->where('status', 'completed')
-            ->whereHas('invoices', function($query) {
-                $query->where('status', 'paid');
-            })
+            ->whereHas('invoices')
             ->orderBy('created_at', 'desc')
             ->get();
 

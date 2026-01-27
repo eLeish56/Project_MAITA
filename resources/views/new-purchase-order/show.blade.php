@@ -322,11 +322,16 @@
                 </button>
             @endif
 
-            @if($po->status === 'received' && !$po->invoices()->exists())
+            @if(in_array($po->status, ['received', 'validated']) && !$po->invoices()->exists())
                 <!-- Button to create Invoice -->
                 <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
-                    <i class="fas fa-file-invoice"></i> Buat Invoice
+                    <i class="fas fa-file-invoice-dollar"></i> Buat Invoice
                 </button>
+            @elseif($po->invoices()->exists() && $po->status !== 'completed')
+                <!-- Button to view invoices when already exists -->
+                <a href="#invoice-tab" class="btn btn-secondary" onclick="document.querySelector('[data-bs-target=\"#invoice-tab\"]')?.click()">
+                    <i class="fas fa-eye"></i> Lihat Invoice
+                </a>
             @endif
         </div>
 
@@ -432,7 +437,7 @@
                         <h5 class="modal-title">Buat Invoice</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <form action="{{ route('new-purchase-orders.create-invoice', $po->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('invoices.store', $po->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <div class="mb-3">

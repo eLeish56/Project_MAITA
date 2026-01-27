@@ -117,10 +117,6 @@
                     <i class="fas fa-times me-1"></i>
                     Batal
                   </button>
-                  <button class="btn btn-outline-success mx-2" id="save_btn">
-                    <i class="fas fa-bookmark me-1"></i>
-                    Simpan
-                  </button>
                   <button class="btn btn-primary" id="pay_btn">
                     <i class="far fa-money-bill-alt me-1"></i>
                     Proses
@@ -705,46 +701,6 @@
       }
     }
 
-    // FUNCTION SIMPAN TRANSAKSI
-    // Menyimpan transaksi untuk keperluan archiving atau riwayat
-    function save_transaction() {
-      var customer_id = $('#customer').val();
-      var invoice = $('#invoice').val();
-      var invoice_no = $('#invoice_no').val();
-      var grand_total = parseInt($('#grand_total_int').val());
-
-      if (empty_cart()) return false;
-
-      if (!confirm('Apakah anda yakin ingin menyimpan transaksi ini?')) return false;
-
-      $.ajax({
-        url: '{{ route('transaction.save') }}',
-        type: 'POST',
-        dataType: 'json',
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        data: {
-          invoice,
-          invoice_no,
-          customer_id,
-          total: grand_total,
-        },
-        success: function(data) {
-          if (data.status == 'success') {
-            toastr.success(data.message);
-            clear_cart(false);
-            $('#payment_modal').modal('hide');
-          } else {
-            toastr.error(data.message);
-          }
-        },
-        error: function(e) {
-          console.log(e);
-        }
-      });
-    }
-
     // FUNCTION UPDATE DETAIL PELANGGAN
     // Menampilkan informasi kontak pelanggan yang dipilih
     function updateCustomerDetails() {
@@ -873,10 +829,6 @@
       // EVENT: TOMBOL BATAL
       // Kosongkan keranjang dan pembayaran
       $('#cancel_btn').on('click', clear_cart);
-
-      // EVENT: TOMBOL SIMPAN
-      // Simpan transaksi untuk riwayat
-      $('#save_btn').on('click', save_transaction);
 
       // EVENT: TOMBOL BUKA MODAL BARANG
       // Tampilkan daftar barang yang tersedia

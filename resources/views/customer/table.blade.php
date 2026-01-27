@@ -40,10 +40,6 @@
               id="detail-btn">
               <i class="fas fa-info-circle"></i> Detil
             </button>
-            <a href="{{ route('customer.show', $customer->id) }}" class="btn btn-sm rounded-3 text-white btn-secondary">
-              <i class="fas fa-info-circle"></i>
-              Detil
-            </a>
             <a href="{{ route('customer.edit', $customer->id) }}" class="btn btn-sm rounded-3 text-white btn-success">
               <i class="fas fa-edit"></i>
               Ubah
