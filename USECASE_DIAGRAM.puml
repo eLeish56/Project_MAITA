@@ -1,0 +1,320 @@
+@startuml POS_System_Usecase_Diagram
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam usecaseBackgroundColor #E1F5FE
+skinparam actorBackgroundColor #FFF9C4
+skinparam classBackgroundColor #F3E5F5
+skinparam arrowColor #333333
+
+title Diagram Use Case - Sistem POS Terintegrasi\ndengan Marketplace & Procurement
+
+' ============================================
+' ACTORS DEFINITION
+' ============================================
+actor Customer as C #FFF9C4
+actor Cashier as K #FFF9C4
+actor Admin as A #FFF9C4
+actor Supervisor as S #FFF9C4
+actor Supplier as SP #FFE0B2
+note right of SP: Pihak Eksternal\n(Tidak login)
+
+' ============================================
+' MARKETPLACE SUBSYSTEM
+' ============================================
+package "MARKETPLACE SYSTEM" #E1F5FE {
+    usecase "Browse Products" as UC_MP_Browse
+    usecase "View Product Details" as UC_MP_Details
+    usecase "Search/Filter Products" as UC_MP_Search
+    usecase "Add to Cart" as UC_MP_AddCart
+    usecase "View Cart" as UC_MP_ViewCart
+    usecase "Update Cart Quantity" as UC_MP_UpdateCart
+    usecase "Remove from Cart" as UC_MP_RemoveCart
+    usecase "Clear Cart" as UC_MP_ClearCart
+    usecase "Checkout" as UC_MP_Checkout
+    usecase "Process Payment" as UC_MP_Payment
+    usecase "View Orders" as UC_MP_ViewOrders
+    usecase "Track Order Status" as UC_MP_TrackStatus
+    usecase "View Order Details" as UC_MP_OrderDetails
+}
+
+' ============================================
+' POS SUBSYSTEM
+' ============================================
+package "POS SYSTEM" #B3E5FC {
+    usecase "Create Transaction" as UC_POS_Create
+    usecase "Add Items to Cart" as UC_POS_AddItem
+    usecase "Check Stock" as UC_POS_CheckStock
+    usecase "Update Item Quantity" as UC_POS_UpdateQty
+    usecase "Remove Item from Cart" as UC_POS_RemoveItem
+    usecase "Complete Transaction" as UC_POS_Complete
+    usecase "Select Payment Method" as UC_POS_Payment
+    usecase "Print Receipt" as UC_POS_Print
+    usecase "View Transactions" as UC_POS_ViewTrans
+    usecase "View Transaction Details" as UC_POS_TransDetails
+}
+
+' ============================================
+' ONLINE ORDERS PROCESSING
+' ============================================
+package "ONLINE ORDERS PROCESSING" #81D4FA {
+    usecase "View Online Orders" as UC_OO_View
+    usecase "View Order Items" as UC_OO_Items
+    usecase "Process Order Payment" as UC_OO_Process
+    usecase "Marketplace Orders" as UC_MP_Orders
+}
+
+' ============================================
+' INVENTORY MANAGEMENT SUBSYSTEM
+' ============================================
+package "INVENTORY MANAGEMENT" #80DEEA {
+    usecase "Manage Items (CRUD)" as UC_INV_Items
+    usecase "Manage Categories" as UC_INV_Cat
+    usecase "Manage Suppliers" as UC_INV_Supp
+    usecase "View Item Details" as UC_INV_ItemDetail
+    usecase "Upload Item Image" as UC_INV_Image
+    usecase "Set Pricing" as UC_INV_Price
+    usecase "Manage Batches" as UC_INV_Batch
+    usecase "Track Expiry Dates" as UC_INV_Expiry
+    usecase "Stock Movement Analysis" as UC_INV_Movement
+    usecase "Fast-Moving Items" as UC_INV_FastMove
+    usecase "Slow-Moving Items" as UC_INV_SlowMove
+}
+
+' ============================================
+' PROCUREMENT SUBSYSTEM
+' ============================================
+package "PROCUREMENT WORKFLOW" #4DD0E1 {
+    usecase "Create Purchase Request" as UC_PR_Create
+    usecase "View PR List" as UC_PR_View
+    usecase "Approve PR" as UC_PR_Approve
+    usecase "Reject PR" as UC_PR_Reject
+    usecase "Generate PR PDF" as UC_PR_PDF
+    
+    usecase "Create Purchase Order" as UC_PO_Create
+    usecase "View PO List" as UC_PO_View
+    usecase "Edit PO Prices" as UC_PO_EditPrice
+    usecase "Confirm PO Prices" as UC_PO_ConfirmPrice
+    usecase "Mark PO as Sent" as UC_PO_Sent
+    usecase "Generate PO PDF" as UC_PO_PDF
+    
+    usecase "Create Goods Receipt" as UC_GR_Create
+    usecase "Record Items in GR" as UC_GR_Record
+    usecase "View GR List" as UC_GR_View
+    usecase "Download GR Document" as UC_GR_Download
+    
+    usecase "Create Inventory Record" as UC_INV_Rec_Create
+    usecase "View Inventory Records" as UC_INV_Rec_View
+    
+    usecase "Create Invoice" as UC_INV_Create
+    usecase "View Invoice List" as UC_INV_View
+    usecase "Upload Invoice File" as UC_INV_Upload
+    usecase "Mark Invoice as Paid" as UC_INV_Paid
+    usecase "Download Invoice" as UC_INV_Download
+}
+
+' ============================================
+' USER MANAGEMENT SUBSYSTEM
+' ============================================
+package "USER MANAGEMENT" #26C6DA {
+    usecase "Manage Users (CRUD)" as UC_USER_Mgmt
+    usecase "Assign Roles" as UC_USER_Role
+    usecase "Activate/Deactivate User" as UC_USER_Active
+    usecase "Reset Password" as UC_USER_Reset
+    usecase "Register Account" as UC_AUTH_Register
+    usecase "Login" as UC_AUTH_Login
+    usecase "Logout" as UC_AUTH_Logout
+}
+
+' ============================================
+' CUSTOMER MANAGEMENT
+' ============================================
+package "CUSTOMER MANAGEMENT" #00BCD4 {
+    usecase "Manage Customers (CRUD)" as UC_CUST_Mgmt
+    usecase "View Customer Profile" as UC_CUST_Profile
+    usecase "Edit Customer Profile" as UC_CUST_Edit
+}
+
+' ============================================
+' REPORTING & ANALYTICS SUBSYSTEM
+' ============================================
+package "REPORTING & ANALYTICS" #006064 {
+    usecase "Sales Reports" as UC_REP_Sales
+    usecase "Filter Transactions" as UC_REP_Filter
+    usecase "Export Sales Report" as UC_REP_Export
+    usecase "Purchase Reports" as UC_REP_Purchase
+    usecase "Stock Movement Reports" as UC_REP_Movement
+    usecase "View Procurement Dashboard" as UC_REP_ProcDash
+    usecase "Performance Analytics" as UC_REP_Analytics
+}
+
+' ============================================
+' SETTINGS & CONFIGURATION
+' ============================================
+package "SETTINGS & CONFIGURATION" #004D40 {
+    usecase "Manage Payment Methods" as UC_SET_Payment
+    usecase "Manage Absences" as UC_SET_Absence
+    usecase "Configure Stock Settings" as UC_SET_Stock
+}
+
+' ============================================
+' CUSTOMER INTERACTIONS
+' ============================================
+C --> UC_AUTH_Register
+C --> UC_AUTH_Login
+C --> UC_AUTH_Logout
+C --> UC_MP_Browse
+C --> UC_MP_Search
+C --> UC_MP_Details
+C --> UC_MP_AddCart
+C --> UC_MP_ViewCart
+C --> UC_MP_UpdateCart
+C --> UC_MP_RemoveCart
+C --> UC_MP_ClearCart
+C --> UC_MP_Checkout
+C --> UC_MP_Payment
+C --> UC_MP_ViewOrders
+C --> UC_MP_OrderDetails
+C --> UC_MP_TrackStatus
+C --> UC_CUST_Profile
+C --> UC_CUST_Edit
+
+' ============================================
+' CASHIER INTERACTIONS
+' ============================================
+K --> UC_AUTH_Login
+K --> UC_AUTH_Logout
+K --> UC_POS_Create
+K --> UC_POS_AddItem
+K --> UC_POS_CheckStock
+K --> UC_POS_UpdateQty
+K --> UC_POS_RemoveItem
+K --> UC_POS_Complete
+K --> UC_POS_Payment
+K --> UC_POS_Print
+K --> UC_POS_ViewTrans
+K --> UC_POS_TransDetails
+K --> UC_OO_View
+K --> UC_OO_Items
+K --> UC_OO_Process
+K --> UC_MP_Orders
+K --> UC_INV_ItemDetail
+
+' ============================================
+' ADMIN INTERACTIONS
+' ============================================
+A --> UC_AUTH_Login
+A --> UC_AUTH_Logout
+A --> UC_INV_Items
+A --> UC_INV_Cat
+A --> UC_INV_Supp
+A --> UC_INV_Image
+A --> UC_INV_Price
+A --> UC_CUST_Mgmt
+A --> UC_REP_Sales
+A --> UC_REP_Filter
+A --> UC_REP_Export
+A --> UC_CUST_Profile
+A --> UC_CUST_Edit
+
+' ============================================
+' SUPERVISOR INTERACTIONS
+' ============================================
+S --> UC_AUTH_Login
+S --> UC_AUTH_Logout
+
+' User Management
+S --> UC_USER_Mgmt
+S --> UC_USER_Role
+S --> UC_USER_Active
+S --> UC_USER_Reset
+
+' Inventory Master Data
+S --> UC_INV_Items
+S --> UC_INV_Cat
+S --> UC_INV_Supp
+S --> UC_INV_Image
+S --> UC_INV_Price
+S --> UC_INV_Batch
+S --> UC_INV_Expiry
+
+' Stock Movement & Analysis
+S --> UC_INV_Movement
+S --> UC_INV_FastMove
+S --> UC_INV_SlowMove
+
+' Procurement - PR
+S --> UC_PR_Create
+S --> UC_PR_View
+S --> UC_PR_Approve
+S --> UC_PR_Reject
+S --> UC_PR_PDF
+
+' Procurement - PO
+S --> UC_PO_Create
+S --> UC_PO_View
+S --> UC_PO_EditPrice
+S --> UC_PO_ConfirmPrice
+S --> UC_PO_Sent
+S --> UC_PO_PDF
+
+' Procurement - Goods Receipt
+S --> UC_GR_Create
+S --> UC_GR_Record
+S --> UC_GR_View
+S --> UC_GR_Download
+
+' Procurement - Inventory Record
+S --> UC_INV_Rec_Create
+S --> UC_INV_Rec_View
+
+' Procurement - Invoice
+S --> UC_INV_Create
+S --> UC_INV_View
+S --> UC_INV_Upload
+S --> UC_INV_Paid
+S --> UC_INV_Download
+
+' Settings
+S --> UC_SET_Payment
+S --> UC_SET_Absence
+S --> UC_SET_Stock
+
+' Reporting
+S --> UC_REP_Sales
+S --> UC_REP_Filter
+S --> UC_REP_Export
+S --> UC_REP_Purchase
+S --> UC_REP_Movement
+S --> UC_REP_ProcDash
+S --> UC_REP_Analytics
+
+' Customer Management
+S --> UC_CUST_Mgmt
+S --> UC_CUST_Profile
+S --> UC_CUST_Edit
+
+' ============================================
+' SUPPLIER INTERACTIONS (Eksternal)
+' ============================================
+SP -.-> UC_PO_View : "Receive PO"
+SP -.-> UC_GR_Create : "Deliver Goods"
+SP -.-> UC_INV_Create : "Send Invoice"
+
+' ============================================
+' RELATIONSHIPS & DEPENDENCIES
+' ============================================
+UC_MP_Checkout ..> UC_MP_ViewCart
+UC_MP_Payment ..> UC_MP_Checkout
+UC_POS_Complete ..> UC_POS_CheckStock
+UC_POS_Print ..> UC_POS_Complete
+UC_PO_Create ..> UC_PR_Approve
+UC_GR_Create ..> UC_PO_View
+UC_INV_Rec_Create ..> UC_GR_Create
+UC_INV_Create ..> UC_PO_View
+UC_INV_Paid ..> UC_INV_View
+UC_INV_Movement ..> UC_INV_Items
+UC_REP_ProcDash ..> UC_PR_View
+UC_REP_ProcDash ..> UC_PO_View
+UC_REP_ProcDash ..> UC_INV_View
+
+@enduml
