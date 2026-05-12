@@ -16,11 +16,15 @@ class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * Exclude customer users from the listing
      */
     public function index(): View
     {
         return view('user.index', [
-            'users' => User::where('id', '!=', Auth::user()->id)->orderBy('name')->get(),
+            'users' => User::where('id', '!=', Auth::user()->id)
+                           ->where('role', '!=', 'customer')
+                           ->orderBy('name')
+                           ->get(),
             'type' => 'show'
         ]);
     }
@@ -75,10 +79,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+   
 
     /**
      * Show the form for editing the specified resource.

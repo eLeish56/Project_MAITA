@@ -14,6 +14,10 @@ class Kernel extends ConsoleKernel
     {
         // Update batch expiry status setiap hari jam 00:01
         $schedule->command('batch:update-status')->dailyAt('00:01');
+        
+        // TESTING: Auto-expire marketplace orders setiap menit
+        // Production: Ubah ke ->hourly() untuk cek setiap jam
+        $schedule->command('marketplace:expire-orders')->everyMinute();
     }
 
     /**

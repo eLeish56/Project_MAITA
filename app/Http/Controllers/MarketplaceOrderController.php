@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\MarketplaceOrder;
+use App\Services\MarketplaceOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MarketplaceOrderController extends Controller
 {
     protected string $cartSessionKey = 'marketplace_cart';
+    protected MarketplaceOrderService $orderService;
+
+    public function __construct(MarketplaceOrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
 
     /** Halaman ringkasan + form pickup_name/phone/notes */
     public function create(Request $request)
@@ -104,18 +113,21 @@ class MarketplaceOrderController extends Controller
             $total += $subtotal;
         }
 
-        $code = 'PO-' . strtoupper(Str::random(8)); // contoh: PO-ABCD1234 (unik) :contentReference[oaicite:6]{index=6}
+        $code = 'PO-' . strtoupper(Str::random(8));
+        // Waktu pengambilan order: 24 jam
+        $expiredAt = now()->addHours(24); // 24 jam dari sekarang
 
-        DB::transaction(function () use ($user, $data, $rows, $total, $code) {
-            // INSERT marketplace_orders (kolom sesuai dump: user_id, code, status, pickup_name, phone, notes, total_price) :contentReference[oaicite:7]{index=7}
+        DB::transaction(function () use ($user, $data, $rows, $total, $code, $expiredAt) {
+            // INSERT marketplace_orders dengan expired_at
             $orderId = DB::table('marketplace_orders')->insertGetId([
                 'user_id'     => $user->id,
                 'code'        => $code,
-                'status'      => 'pending_pickup', // varchar(20) OK (default schema "pending") :contentReference[oaicite:8]{index=8}
+                'status'      => 'pending',
                 'pickup_name' => $data['pickup_name'],
                 'phone'       => $data['phone'],
                 'notes'       => $data['notes'] ?? null,
-                'total_price' => $total, // decimal(14,2) di DB, kirim integer → 3500 menjadi 3500.00 :contentReference[oaicite:9]{index=9}
+                'total_price' => $total,
+                'expired_at'  => $expiredAt, // Set deadline pengambilan 24 jam
                 'created_at'  => now(),
                 'updated_at'  => now(),
             ]);
@@ -126,11 +138,11 @@ class MarketplaceOrderController extends Controller
                     'order_id'   => $orderId,
                     'item_id'    => $r['item_id'],
                     'qty'        => $r['qty'],
-                    'price'      => $r['price'], // decimal(14,2) di DB
+                    'price'      => $r['price'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                // Kurangi stok di items.stock (kolom ada) :contentReference[oaicite:10]{index=10}
+                // Kurangi stok di items.stock
                 DB::table('items')->where('id', $r['item_id'])->decrement('stock', $r['qty']);
             }
         });
@@ -145,14 +157,30 @@ class MarketplaceOrderController extends Controller
     /** Nota berdasarkan data DB marketplace_orders & marketplace_order_items */
     public function show(string $code)
     {
-        $order = DB::table('marketplace_orders')->where('code', $code)->first(); // kolom ada :contentReference[oaicite:11]{index=11}
+        // Gunakan Model agar casting bekerja
+        $order = MarketplaceOrder::where('code', $code)->first();
         if (!$order) abort(404);
 
-        $items = DB::table('marketplace_order_items')->where('order_id', $order->id)->get(); // kolom ada :contentReference[oaicite:12]{index=12}
+        // AUTO-CHECK: Jika order expired tapi status masih pending → expire sekarang
+        if ($order->status === 'pending' && $order->isExpired()) {
+            try {
+                $this->orderService->cancelOrder(
+                    $order,
+                    'Otomatis dihapus - Waktu pengambilan 24 jam telah berakhir',
+                    null
+                );
+                // Reload untuk tampilkan status terbaru
+                $order->refresh();
+            } catch (\Exception $e) {
+                Log::error("Failed to auto-expire order {$order->code}: {$e->getMessage()}");
+            }
+        }
+
+        $items = $order->items()->get();
 
         // Bentuk rows untuk view (dengan subtotal)
         $rows = $items->map(function ($i) {
-            $price = (int)$i->price; // kita simpan integer (Rp), DB decimal(14,2)
+            $price = (int)$i->price;
             return [
                 'item_id'  => $i->item_id,
                 'qty'      => (int)$i->qty,
@@ -163,8 +191,8 @@ class MarketplaceOrderController extends Controller
 
         $total = (int)$order->total_price;
 
-        // Ambil snapshot nama/kode (opsional): join ke items untuk tampilkan nama/kode terkini jika mau
-        $map = DB::table('items')->whereIn('id', $rows->pluck('item_id'))->get()->keyBy('id');
+        // Ambil nama item yang terkini
+        $map = Item::whereIn('id', $rows->pluck('item_id'))->get()->keyBy('id');
         $rows = $rows->map(function ($r) use ($map) {
             $it = $map->get($r['item_id']);
             return [
@@ -199,8 +227,14 @@ class MarketplaceOrderController extends Controller
             if (!$order) {
                 abort(404, 'Order tidak ditemukan.');
             }
-            if ($order->status !== 'pending_pickup') {
-                abort(400, 'Order tidak dalam status pending_pickup.');
+            if ($order->status !== 'pending') {
+                abort(400, 'Order tidak dalam status pending.');
+            }
+
+            // VALIDASI: Cek apakah order sudah expired
+            $orderModel = MarketplaceOrder::find($order->id);
+            if ($orderModel->isExpired()) {
+                abort(400, 'Pesanan sudah kadaluarsa dan tidak dapat diproses. Stok telah dikembalikan.');
             }
 
             $items = DB::table('marketplace_order_items')
@@ -251,12 +285,13 @@ class MarketplaceOrderController extends Controller
                 ]);
             }
 
-            // 5) Update status order → completed
+            // 5) Update status order → picked
             DB::table('marketplace_orders')
                 ->where('id', $order->id)
                 ->update([
-                    'status'     => 'completed',
-                    'updated_at' => now(),
+                    'status'       => 'picked',
+                    'picked_up_at' => now(),
+                    'updated_at'   => now(),
                 ]);
         });
 
@@ -265,13 +300,95 @@ class MarketplaceOrderController extends Controller
     public function index()
     {
         $user = Auth::user();
-        // Ambil semua pesanan user yg statusnya pending_pickup atau completed
-        $orders = DB::table('marketplace_orders')
-                   ->where('user_id', $user->id)
-                   ->whereIn('status', ['pending_pickup', 'completed'])
+        // Ambil semua pesanan user menggunakan Model agar casting bekerja
+        $orders = MarketplaceOrder::where('user_id', $user->id)
                    ->orderByDesc('created_at')
                    ->get();
 
         return view('marketplace.orders', compact('orders'));
+    }
+
+    /**
+     * Daftar pesanan online yang pending untuk kasir
+     */
+    public function pendingOrders()
+    {
+        // Hanya kasir/admin/supervisor yang bisa akses
+        $orders = MarketplaceOrder::where('status', 'pending')
+                   ->with('user') // Load user relationship untuk tampilkan nama customer
+                   ->orderByDesc('created_at')
+                   ->get();
+
+        return view('marketplace.pending-orders', compact('orders'));
+    }
+
+    /**
+     * Batalkan pesanan oleh kasir/admin
+     */
+    public function cancel(Request $request)
+    {
+        $data = $request->validate([
+            'order_code' => ['required', 'string', 'exists:marketplace_orders,code'],
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $order = MarketplaceOrder::where('code', $data['order_code'])->first();
+        if (!$order) {
+            return back()->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        try {
+            $this->orderService->cancelOrder(
+                $order,
+                $data['reason'],
+                Auth::id() // Track siapa yang membatalkan
+            );
+            return back()->with('success', 'Pesanan berhasil dibatalkan dan stok dikembalikan.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal batalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Batalkan pesanan oleh customer pemilik order
+     * Hanya customer pembuat order yang bisa membatalkan
+     */
+    public function cancelByCustomer(Request $request)
+    {
+        $data = $request->validate([
+            'order_code' => ['required', 'string', 'exists:marketplace_orders,code'],
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $order = MarketplaceOrder::where('code', $data['order_code'])->first();
+        if (!$order) {
+            return back()->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        // Pastikan order adalah milik user yang login
+        if ($order->user_id !== Auth::id()) {
+            return back()->with('error', 'Anda tidak berhak membatalkan pesanan ini.');
+        }
+
+        try {
+            $this->orderService->cancelOrder(
+                $order,
+                $data['reason'],
+                Auth::id() // Track siapa yang membatalkan
+            );
+            return back()->with('success', 'Pesanan berhasil dibatalkan dan stok dikembalikan.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal batalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Auto-cancel pesanan yang sudah expired (24 jam)
+     * Bisa dijalankan via cronjob atau manual trigger
+     */
+    public function autoExpire()
+    {
+        $count = $this->orderService->autoExpireOrders();
+        return response()->json(['success' => true, 'message' => "{$count} pesanan dibatalkan otomatis"]);
     }
 }

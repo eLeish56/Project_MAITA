@@ -164,12 +164,22 @@ Route::middleware(['auth', \App\Http\Middleware\IsCustomer::class])->group(funct
     Route::post('/marketplace/checkout', [MarketplaceOrderController::class, 'store'])->name('marketplace.checkout.store');
     Route::get('/marketplace/orders', [MarketplaceOrderController::class, 'index'])->name('marketplace.order.index');
     Route::get('/marketplace/order/{code}', [MarketplaceOrderController::class, 'show'])->name('marketplace.order.show');
+    Route::post('/marketplace/order/cancel', [MarketplaceOrderController::class, 'cancelByCustomer'])->name('marketplace.order.cancel');
 
     // Unified logout for all users with proper session cleanup
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
          ->name('logout')
          ->middleware('web');
 });
+
+// Kasir/Admin marketplace order management (pembatalan order)
+Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->group(function () {
+    Route::get('/marketplace/pending-orders', [MarketplaceOrderController::class, 'pendingOrders'])->name('marketplace.pending-orders');
+    Route::post('/marketplace/orders/cancel', [MarketplaceOrderController::class, 'cancel'])->name('marketplace.order.cancel-admin');
+});
+
+// Auto-expire orders (bisa diakses via cronjob atau manual trigger)
+Route::get('/marketplace/auto-expire', [MarketplaceOrderController::class, 'autoExpire'])->name('marketplace.auto-expire');
 
 /* ============================
    GUEST (Register & Login)
@@ -235,11 +245,13 @@ Route::get('/', function () {
         Route::get('/marketplace-orders', [TransactionController::class, 'marketplaceOnlineOrders'])->name('marketplace.orders');
         Route::get('/marketplace-orders/{order}/items', [TransactionController::class, 'marketplaceOrderItems'])->name('marketplace.order.items');
         Route::post('/marketplace-orders/{order}/process', [TransactionController::class, 'processMarketplaceOrder'])->name('marketplace.order.process');
+        Route::post('/marketplace-orders/{order}/cancel', [TransactionController::class, 'cancelMarketplaceOrder'])->name('marketplace.order.cancel-cashier');
         
         // Legacy Online Orders
         Route::get('/online-orders', [TransactionController::class, 'onlineOrders'])->name('online');
         Route::get('/online-orders/{order}/items', [TransactionController::class, 'onlineOrderItems'])->name('online.items');
         Route::post('/online-orders/{order}/process', [TransactionController::class, 'processOnline'])->name('online.process');
+        Route::post('/online-orders/{order}/cancel', [TransactionController::class, 'cancelOnlineOrder'])->name('online.cancel');
     });
 
 
@@ -261,18 +273,31 @@ Route::get('/', function () {
     Route::get('/api/last-transaction', [TransactionController::class, 'getLastTransaction']);
 
     /*
-     * INVENTORY
+     * INVENTORY MANAGEMENT
+     * CRUD operations (Admin only) - must be defined FIRST before general READ routes
      */
-    Route::prefix('inventory')->middleware(IsAdminOrSupervisor::class)->group(function () {
-        Route::resource('category', CategoryController::class)->except('show');
-        Route::resource('supplier', SupplierController::class);
-        Route::resource('item', ItemController::class);
-        
-        // Batch management routes
-        Route::get('/batches', [BatchController::class, 'index'])->name('batches.index');
-        Route::get('/batches/item/{item}', [BatchController::class, 'itemBatches'])->name('batches.item');
+    Route::prefix('inventory')->middleware(IsAdmin::class)->group(function () {
+        Route::resource('category', CategoryController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('supplier', SupplierController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('item', ItemController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
         Route::post('/batches/update-status', [BatchController::class, 'updateExpiryStatus'])->name('batches.update-status');
     });
+
+    /*
+     * INVENTORY - READ ONLY (Admin & Supervisor can VIEW)
+     */
+    Route::prefix('inventory')->middleware(IsAdminOrSupervisor::class)->group(function () {
+        Route::get('/category', [CategoryController::class, 'index'])->name('category.index');
+        Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
+        Route::get('/item', [ItemController::class, 'index'])->name('item.index');
+        Route::get('/item/{item}', [ItemController::class, 'show'])->name('item.show');
+        Route::get('/batches', [BatchController::class, 'index'])->name('batches.index');
+        Route::get('/batches/item/{item}', [BatchController::class, 'itemBatches'])->name('batches.item');
+    });
+
+    // Item & Supplier Export (Admin ONLY)
+    Route::get('/item/export', [ItemController::class, 'export'])->name('item.export')->middleware(IsAdmin::class);
+    Route::get('/supplier/export', [SupplierController::class, 'export'])->name('supplier.export')->middleware(IsAdmin::class);
 
     /*
      * USER MANAGEMENT (SUPERVISOR ONLY)

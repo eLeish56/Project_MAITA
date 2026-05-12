@@ -260,7 +260,7 @@ class NewPurchaseOrderController extends Controller
      */
     public function markAsSent($id)
     {
-        $po = PurchaseOrder::findOrFail($id);
+        $po = PurchaseOrder::with('items')->findOrFail($id);
         
         // Pastikan PO dalam status draft dan harga sudah dikonfirmasi
         if ($po->status !== 'draft') {
@@ -271,9 +271,23 @@ class NewPurchaseOrderController extends Controller
             return back()->with('error', 'Semua harga harus dikonfirmasi sebelum mengirim PO ke supplier');
         }
 
+        // Validasi KETAT: Pastikan SEMUA item memiliki harga yang valid (> 0)
+        $itemsWithoutValidPrice = [];
+        foreach ($po->items as $item) {
+            if (!$item->unit_price || $item->unit_price <= 0) {
+                $itemsWithoutValidPrice[] = $item->product_name;
+            }
+        }
+
+        if (!empty($itemsWithoutValidPrice)) {
+            $itemList = implode(', ', $itemsWithoutValidPrice);
+            return back()->with('error', "PO tidak dapat dikirim. Item berikut belum memiliki harga yang valid: {$itemList}");
+        }
+
         try {
             $po->update([
-                'status' => 'sent'
+                'status' => 'sent',
+                'sent_at' => now()
             ]);
             
             return back()->with('success', 'PO berhasil dikirim ke supplier');
@@ -568,11 +582,19 @@ class NewPurchaseOrderController extends Controller
 
             // Cek apakah semua item memiliki harga valid
             $allPricesValid = true;
+            $itemsWithoutPrice = [];
             foreach ($po->items as $item) {
                 if (!$item->unit_price || $item->unit_price <= 0) {
                     $allPricesValid = false;
-                    break;
+                    $itemsWithoutPrice[] = $item->product_name;
                 }
+            }
+
+            // Jika user ingin confirm tapi ada item tanpa harga, tolak
+            if ($confirmAll && !$allPricesValid) {
+                DB::rollBack();
+                $itemList = implode(', ', $itemsWithoutPrice);
+                return back()->withErrors(['error' => "Tidak dapat mengkonfirmasi. Item berikut belum memiliki harga: {$itemList}"]);
             }
 
             // Hanya set prices_confirmed jika konfirmasi diminta dan semua harga valid
@@ -581,14 +603,10 @@ class NewPurchaseOrderController extends Controller
                 'prices_confirmed' => $confirmAll && $allPricesValid
             ]);
 
-            if ($confirmAll && !$allPricesValid) {
-                return back()->withErrors(['error' => 'Tidak dapat mengkonfirmasi. Pastikan semua item memiliki harga yang valid.']);
-            }
-
             DB::commit();
 
-            $message = $confirmAll || $allPricesSet ? 
-                'Harga berhasil dikonfirmasi' : 
+            $message = $confirmAll && $allPricesValid ? 
+                'Harga berhasil dikonfirmasi. PO siap untuk dikirim ke supplier.' : 
                 'Harga berhasil diupdate';
 
             return redirect()

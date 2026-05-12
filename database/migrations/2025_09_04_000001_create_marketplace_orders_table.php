@@ -10,11 +10,18 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('code', 32)->unique();
-            $table->string('status', 20)->default('pending'); // pending, picked, cancelled
+            $table->string('status', 20)->default('pending'); // pending, picked, cancelled, expired
             $table->string('pickup_name', 100);
             $table->string('phone', 30);
             $table->string('notes', 255)->nullable();
             $table->decimal('total_price', 14, 2)->default(0);
+            
+            // Fitur 24 jam pickup & pembatalan
+            $table->timestamp('expired_at')->nullable(); // Deadline pengambilan barang (24 jam)
+            $table->timestamp('picked_up_at')->nullable(); // Waktu barang diambil kasir
+            $table->string('cancellation_reason', 255)->nullable(); // Alasan pembatalan (otomatis/manual)
+            $table->foreignId('canceled_by')->nullable()->constrained('users')->nullOnDelete(); // Kasir yg cancel
+            
             $table->timestamps();
         });
     }

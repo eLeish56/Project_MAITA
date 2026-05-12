@@ -81,11 +81,15 @@
   </div>
 
   <script>
+    function exportData(type) {
+      window.location.href = "/supplier/export?type=" + type;
+    }
+
     $(document).ready(function() {
       $('#supplier_table').DataTable({
         "language": datatableLanguageOptions,
         "columnDefs": [{
-          "targets": [4],
+          "targets": [5],
           "orderable": false,
           "searchable": false
         }]
@@ -100,10 +104,6 @@
         $('#address').val($(this).data('address'));
         $('#description').val($(this).data('description'));
       });
-
-      function exportData(type) {
-        window.location.href = "/supplier/export?type=" + type;
-      }
     });
   </script>
 </x-layout>

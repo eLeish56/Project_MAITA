@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,6 +49,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Enable query logging for debugging (kept as before)
         DB::enableQueryLog();
+
+        // Set up pagination to use Bootstrap 5
+        Paginator::useBootstrapFive();
 
         Blade::directive('indo_currency', function ($expression) {
             return "Rp. <?php echo number_format($expression,0,',','.'); ?>";

@@ -220,12 +220,14 @@
             </li>
             @endif
             @if (in_array(auth()->user()->role, ['owner','supervisor']))
+              @if(auth()->user()->role === 'owner')
               <li class="sidebar-item {{ request()->is('payment-method/*') ? 'selected' : '' }}">
                 <a class="sidebar-link waves-effect waves-dark" href="{{ route('payment-method.index') }}"
                   aria-expanded="false">
                   <i class="mdi mdi-cash-multiple"></i><span class="hide-menu">Metode Pembayaran</span>
                 </a>
               </li>
+              @endif
               @if(in_array(auth()->user()->role, ['admin','supervisor','owner']))
               <li class="sidebar-item {{ request()->is('user/*') ? 'selected' : '' }}">
                 <a class="sidebar-link waves-effect waves-dark " href="{{ route('user.index') }}"

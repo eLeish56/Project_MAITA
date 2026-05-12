@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Purchase Request {{ $pr->pr_number }}</title>
+    <title>Permintaan Pembelian {{ $pr->pr_number }}</title>
     <style>
         * {
             margin: 0;
@@ -12,267 +12,300 @@
 
         @page {
             size: A4;
-            margin: 40mm;
+            margin: 0;
         }
 
         html, body {
-            width: 210mm;
-            height: 297mm;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #333;
+            line-height: 1.4;
+            background: white;
             margin: 0;
             padding: 0;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            font-size: 11px;
-            color: #000;
-            line-height: 1.4;
-            margin: 0;
-            padding: 0;
+            padding: 3cm 3cm 3cm 3cm;
         }
 
         .container {
-            width: 100%;
+            width: auto;
             margin: 0;
             padding: 0;
-            background: white;
-            display: flex;
-            flex-direction: column;
         }
 
-        .content-wrapper {
-            width: 100%;
-        }
-
-        /* Kop Surat */
+        /* ===== HEADER/KOP SURAT ===== */
         .header {
             text-align: center;
-            border-bottom: 3px solid #000;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-            width: 100%;
+            border-bottom: 1px solid #000;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
         }
 
         .header-title {
-            font-size: 13px;
             font-weight: bold;
-            letter-spacing: 1px;
+            font-size: 11px;
             margin-bottom: 2px;
         }
 
-        .header-subtitle {
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 3px;
-        }
-
         .header-address {
-            font-size: 8px;
+            font-size: 9px;
             line-height: 1.3;
+            color: #333;
         }
 
-        /* Judul Dokumen */
+        /* ===== INFO SECTION ===== */
+        .info-section {
+            margin-bottom: 8px;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-left {
+            flex: 1;
+        }
+
+        .info-right {
+            width: 180px;
+            text-align: left;
+        }
+
+        .info-row {
+            margin-bottom: 2px;
+            line-height: 1.4;
+        }
+
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 70px;
+        }
+
+        /* ===== SUBTITLE ===== */
+        .subtitle {
+            text-align: center;
+            font-weight: bold;
+            font-size: 11px;
+            margin: 8px 0;
+        }
+
+        /* ===== DOC TITLE ===== */
         .doc-title {
             text-align: center;
             font-size: 12px;
             font-weight: bold;
-            text-decoration: underline;
-            margin: 15px 0;
-            width: 100%;
+            margin: 8px 0;
         }
 
-        /* Info Tabel */
-        .info-table {
-            width: 100%;
-            margin-bottom: 15px;
+        /* ===== SUPPLIER INFO ===== */
+        .supplier-info {
+            margin-bottom: 10px;
             font-size: 10px;
-            border-collapse: collapse;
+            line-height: 1.5;
         }
 
-        .info-table td {
-            padding: 3px 0;
+        .supplier-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 60px;
             vertical-align: top;
         }
 
-        .label {
-            width: 100px;
-            font-weight: bold;
-            padding-right: 8px;
+        .supplier-value {
+            display: inline-block;
+            width: calc(100% - 65px);
+            vertical-align: top;
+            word-wrap: break-word;
         }
 
-        .colon {
-            width: 8px;
-            padding: 0 5px;
-            text-align: center;
-        }
-
-        .value {
-            border-bottom: 1px dotted #000;
-            padding-right: 5px;
-        }
-
-        /* Divider */
-        .divider {
-            border-top: 1px solid #000;
-            margin: 15px 0;
-        }
-
-        /* Items Table */
+        /* ===== ITEMS TABLE ===== */
         .items-table {
             width: 100%;
-            margin: 15px 0;
             border-collapse: collapse;
             font-size: 10px;
-        }
-
-        .items-table thead {
-            background: white;
-            border-top: 2px solid #000;
-            border-bottom: 2px solid #000;
+            margin: 12px 0;
         }
 
         .items-table th {
+            border: 1px solid #000;
             padding: 5px 3px;
             text-align: left;
             font-weight: bold;
+            background-color: #fff;
         }
 
         .items-table td {
-            padding: 4px 3px;
-            border-bottom: 1px solid #000;
-        }
-
-        .items-table tbody tr:last-child td {
-            border-bottom: 2px solid #000;
+            border: 1px solid #000;
+            padding: 5px 3px;
         }
 
         .text-center {
             text-align: center;
         }
 
-        /* Notes */
-        .notes {
-            margin: 15px 0;
+        /* ===== NOTES SECTION ===== */
+        .notes-section {
+            margin: 10px 0;
             font-size: 10px;
-            width: 100%;
         }
 
         .notes-label {
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
-        .notes-box {
-            border: 1px solid #000;
-            padding: 6px;
-            min-height: 25px;
+        .notes-content {
+            min-height: 20px;
+            line-height: 1.4;
         }
 
-        /* Signature */
-        .signature {
-            margin-top: 20px;
-            text-align: center;
+        /* ===== SIGNATURE SECTION ===== */
+        .signature-section {
+            margin-top: 40px;
+            text-align: right;
             font-size: 10px;
-            width: 100%;
+        }
+
+        .sig-date {
+            margin-bottom: 15px;
+            font-size: 10px;
+        }
+
+        .sig-date-label {
+            font-weight: bold;
+        }
+
+        .sig-column {
+            width: auto;
+            text-align: right;
         }
 
         .sig-label {
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 6px;
         }
 
         .sig-line {
             border-top: 1px solid #000;
-            height: 20px;
+            height: 35px;
+            margin-bottom: 2px;
             width: 150px;
-            margin: 0 auto 3px auto;
+            margin-left: auto;
         }
 
         .sig-name {
             font-weight: bold;
+            margin-bottom: 1px;
+            min-height: 14px;
+        }
+
+        .sig-role {
+            font-size: 9px;
+            color: #666;
+        }
+
+        /* ===== PRINT OPTIMIZATION ===== */
+        @media print {
+            body {
+                padding: 3cm 3cm 3cm 3cm;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- HEADER KOP SURAT -->
         <div class="header">
-            <div class="header-title">TEACHING FACTORY</div>
-            <div class="header-subtitle">SMK Muhammadiyah 1 Palembang</div>
+            <div class="header-title">SMK MUHAMMADIYAH 1 PALEMBANG</div>
             <div class="header-address">
                 Jl. Balayudha, RT.16/RW.4, Ario Kemuning, Kec. Kemuning<br>
                 Kota Palembang, Sumatera Selatan 30128 | Telepon: (0711) 414662
             </div>
         </div>
 
-        <!-- Judul -->
-        <div class="doc-title">PERMINTAAN PEMBELIAN</div>
+        <!-- INFO SECTION -->
+        <div class="info-section">
+            <div class="info-left"></div>
+            <div class="info-right">
+                <div class="info-row">
+                    <span class="info-label">Referensi</span>: {{ $pr->pr_number }}
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tanggal</span>: {{ $pr->request_date->format('d/m/Y') }}
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Halaman</span>: 1/1
+                </div>
+            </div>
+        </div>
 
-        <!-- Info -->
-        <table class="info-table">
-            <tr>
-                <td class="label">Nomor Dokumen</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pr->pr_number }}</td>
-            </tr>
-            <tr>
-                <td class="label">Tanggal</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pr->request_date->format('d/m/Y') }}</td>
-            </tr>
-            <tr>
-                <td class="label">Nama Supplier</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pr->supplier->name }}</td>
-            </tr>
-            <tr>
-                <td class="label">Diminta Oleh</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pr->requester->name }}</td>
-            </tr>
-        </table>
+        <!-- SUBTITLE -->
+        <div class="subtitle">TEACHING FACTORY</div>
 
-        <div class="divider"></div>
+        <!-- DOCUMENT TITLE -->
+        <div class="doc-title">Permintaan Pembelian</div>
 
-        <!-- Tabel Items -->
+        <!-- SUPPLIER INFO -->
+        <div class="supplier-info">
+            <div>
+                <span class="supplier-label">Kepada:</span>
+                <span class="supplier-value">{{ $pr->supplier->name }}</span>
+            </div>
+            <div>
+                <span class="supplier-label"></span>
+                <span class="supplier-value">{{ $pr->supplier->address ?? '-' }}</span>
+            </div>
+        </div>
+
+        <!-- ITEMS TABLE -->
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;">No.</th>
-                    <th style="width: 35%;">Nama Barang/Produk</th>
-                    <th style="width: 12%;">Stok Saat Ini</th>
-                    <th style="width: 12%;">Jumlah Diminta</th>
-                    <th style="width: 10%;">Satuan</th>
-                    <th style="width: 26%;">Catatan</th>
+                    <th style="width: 8%">No</th>
+                    <th style="width: 50%">Barang/Produk</th>
+                    <th style="width: 17%">Kuantitas</th>
+                    <th style="width: 25%">Catatan</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($pr->items as $index => $item)
+                @forelse($pr->items as $index => $item)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $item->product_name }}</td>
-                    <td class="text-center">{{ $item->current_stock ?? 0 }}</td>
-                    <td class="text-center">{{ $item->quantity }}</td>
-                    <td class="text-center">{{ $item->unit }}</td>
+                    <td class="text-center">{{ $item->quantity }} {{ $item->unit }}</td>
                     <td>{{ $item->notes ?? '-' }}</td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="4" class="text-center">Tidak ada item</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
 
-        <!-- Catatan -->
-        @if($pr->notes)
-        <div class="notes">
+        <!-- NOTES SECTION -->
+        @if($pr->description || $pr->approval_notes)
+        <div class="notes-section">
             <div class="notes-label">Catatan/Keterangan:</div>
-            <div class="notes-box">{{ $pr->notes }}</div>
+            <div class="notes-content">{{ $pr->description ?? $pr->approval_notes ?? '-' }}</div>
         </div>
         @endif
 
-        <!-- Signature -->
-        <div class="signature">
-            <div class="sig-label">Disetujui Oleh</div>
-            <div class="sig-line"></div>
-            <div class="sig-name">{{ $pr->approver ? $pr->approver->name : '_______________' }}</div>
+        <!-- SIGNATURE SECTION -->
+        @php
+            $manager = $pr->approver ?? \App\Models\User::where('role', 'supervisor')->first();
+        @endphp
+        <div class="signature-section">
+            <div class="sig-date">
+                <div class="sig-date-label">Palembang, {{ $pr->request_date->format('d M Y') }}</div>
+            </div>
+            <div class="sig-column">
+                <div class="sig-line"></div>
+                <div class="sig-name">{{ $manager ? $manager->name : '___________________' }}</div>
+                <div class="sig-role">Manager Operasional</div>
+            </div>
         </div>
     </div>
 </body>

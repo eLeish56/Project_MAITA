@@ -1,6 +1,6 @@
 {{-- Improved version of resources/views/transaction/online.blade.php
     for marketplace orders. This template displays marketplace orders
-    waiting to be picked up (status pending_pickup) and provides
+    waiting to be picked up (status pending) and provides
     a simple button to process them immediately.
 --}}
 
@@ -45,6 +45,11 @@
                                     <button class="btn btn-sm btn-success" data-id="{{ $order->id }}"
                                             onclick="processOrder(this)">
                                         <i class="fas fa-check"></i> Proses
+                                    </button>
+                                    {{-- Tombol batalkan pesanan --}}
+                                    <button class="btn btn-sm btn-danger" data-id="{{ $order->id }}"
+                                            onclick="cancelOrder(this)">
+                                        <i class="fas fa-times"></i> Batalkan
                                     </button>
                                 </td>
                             </tr>
@@ -113,7 +118,6 @@
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; right: 15px; top: 15px;"></button>
                 </div>
-
                 <!-- Body -->
                 <div class="modal-body text-center py-4">
                     <!-- Success Icon Animation -->
@@ -192,6 +196,70 @@
                 $('#transaction_detail_modal').modal('show');
             }).fail(function(xhr) {
                 toastr.error(xhr.responseJSON?.message || 'Gagal memuat detail pesanan.');
+            });
+        }
+
+        /**
+         * Batalkan pesanan online oleh kasir
+         * Meminta alasan pembatalan, mengirim permintaan POST, dan menghapus baris dari tabel setelah sukses
+         */
+        function cancelOrder(btn) {
+            const id = btn.dataset.id;
+            
+            // Tampilkan prompt untuk alasan pembatalan
+            const reason = prompt('Masukkan alasan pembatalan pesanan:', '');
+            if (reason === null || reason.trim() === '') {
+                toastr.warning('Pembatalan dibatalkan');
+                return;
+            }
+
+            $(btn).prop('disabled', true)
+                  .html('<i class="fas fa-spinner fa-spin"></i> Membatalkan...');
+
+            $.ajax({
+                url: `/transaction/online-orders/${id}/cancel`,
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    cancellation_reason: reason
+                },
+                success: function(res) {
+                    toastr.success('Pesanan berhasil dibatalkan dan stok dikembalikan');
+                    
+                    // Reset tombol ke keadaan awal
+                    $(btn).prop('disabled', false)
+                          .html('<i class="fas fa-times"></i> Batalkan');
+                    
+                    // Refresh tabel setelah 2 detik
+                    setTimeout(() => {
+                        $(btn).closest('tr').fadeOut('slow', function() {
+                            $(this).remove();
+                        });
+                        
+                        // Reload halaman jika sudah tidak ada order
+                        if ($('#marketplace-orders-table tbody tr').length === 0) {
+                            window.location.reload();
+                        }
+                    }, 1500);
+                },
+                error: function(xhr) {
+                    // Reset tombol ke keadaan awal saat error
+                    $(btn).prop('disabled', false)
+                          .html('<i class="fas fa-times"></i> Batalkan');
+                          
+                    // Handle CSRF token expiration
+                    if (xhr.status === 419) {
+                        toastr.error('Sesi telah berakhir. Halaman akan dimuat ulang.');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                        return;
+                    }
+                    const res = xhr.responseJSON;
+                    toastr.error(res?.message || 'Terjadi kesalahan saat membatalkan pesanan.');
+                }
             });
         }
 

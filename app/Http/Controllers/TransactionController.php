@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Item;
+use App\Models\MarketplaceOrder;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
+use App\Services\MarketplaceOrderService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -279,9 +281,10 @@ class TransactionController extends Controller
                 'mo.total_price',
                 'mo.created_at',
                 'mo.status',
+                'mo.expired_at',
                 'u.name as customer_name'
             )
-            ->where('mo.status', 'pending_pickup')
+            ->where('mo.status', 'pending')  // Changed from 'pending_pickup' to 'pending'
             ->orderBy('mo.created_at', 'asc')
             ->get();
 
@@ -317,7 +320,7 @@ class TransactionController extends Controller
         // PROSES PESANAN MARKETPLACE - SISTEM TUNAI
         // Setiap pesanan online selalu menggunakan metode pembayaran Tunai
         $order = DB::table('marketplace_orders')->where('id', $orderId)->first();
-        if (!$order || $order->status !== 'pending_pickup') {
+        if (!$order || $order->status !== 'pending') {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Pesanan tidak valid atau sudah diproses.'
@@ -346,8 +349,8 @@ class TransactionController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if (!$orderLocked || $orderLocked->status !== 'pending_pickup') {
-                abort(400, 'Order tidak dalam status pending_pickup.');
+            if (!$orderLocked || $orderLocked->status !== 'pending') {
+                abort(400, 'Order tidak dalam status pending.');
             }
 
             $items = DB::table('marketplace_order_items')
@@ -425,9 +428,10 @@ class TransactionController extends Controller
                 'mo.total_price',
                 'mo.created_at',
                 'mo.status',
+                'mo.expired_at',
                 'u.name as customer_name'
             )
-            ->whereIn('mo.status', ['pending_pickup','processing','completed'])
+            ->whereIn('mo.status', ['pending', 'processing', 'picked', 'completed'])
             ->orderBy('mo.created_at', 'asc')
             ->get();
 
@@ -517,7 +521,7 @@ class TransactionController extends Controller
 public function processMarketplaceOrder($orderId)
 {
     $order = DB::table('marketplace_orders')->where('id', $orderId)->first();
-    if (!$order || $order->status !== 'pending_pickup') {
+    if (!$order || $order->status !== 'pending') {
         return response()->json([
             'status'  => 'error',
             'message' => 'Pesanan tidak valid atau sudah diproses.'
@@ -657,6 +661,91 @@ public function processMarketplaceOrder($orderId)
         }
 
         return response()->json(['id' => $transaction->id]);
+    }
+
+    /**
+     * Batalkan pesanan online (marketplace pending order) oleh kasir
+     * Restore stok dan update status order
+     * Route: POST /transaction/online-orders/{id}/cancel
+     */
+    public function cancelOnlineOrder(Request $request, $orderId)
+    {
+        $request->validate([
+            'cancellation_reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $order = MarketplaceOrder::find($orderId);
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan tidak ditemukan.'
+            ], 404);
+        }
+
+        // Validasi pesanan dalam status pending (belum diproses)
+        if ($order->status !== 'pending') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan dengan status ' . $order->status . ' tidak bisa dibatalkan.'
+            ], 422);
+        }
+
+        try {
+            $orderService = app(MarketplaceOrderService::class);
+            $orderService->cancelOrder(
+                $order,
+                $request->input('cancellation_reason'),
+                Auth::id() // Track kasir yang membatalkan
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pesanan online berhasil dibatalkan dan stok dikembalikan.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal batalkan pesanan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Batalkan pesanan marketplace oleh kasir
+     * Route: POST /transaction/marketplace-orders/{id}/cancel
+     */
+    public function cancelMarketplaceOrder(Request $request, $orderId)
+    {
+        $request->validate([
+            'cancellation_reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $order = MarketplaceOrder::find($orderId);
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pesanan tidak ditemukan.'
+            ], 404);
+        }
+
+        try {
+            $orderService = app(MarketplaceOrderService::class);
+            $orderService->cancelOrder(
+                $order,
+                $request->input('cancellation_reason'),
+                Auth::id() // Track kasir yang membatalkan
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pesanan berhasil dibatalkan dan stok dikembalikan.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal batalkan pesanan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 

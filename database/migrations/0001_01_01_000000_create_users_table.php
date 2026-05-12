@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('role')->default('admin');
-            $table->string('position')->nullable(); // Kolom untuk menyimpan jabatan
+            $table->string('position')->nullable();
             $table->string('picture')->default('profile.jpg');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->rememberToken();

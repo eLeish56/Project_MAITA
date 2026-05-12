@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('marketplace_order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('marketplace_orders')->cascadeOnDelete();
-            $table->foreignId('item_id')->constrained('items')->restrictOnDelete();
+            $table->foreignId('item_id')->constrained('items')->cascadeOnDelete();
             $table->unsignedInteger('qty');
             $table->decimal('price', 14, 2);
             $table->timestamps();

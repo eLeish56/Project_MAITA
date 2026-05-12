@@ -51,8 +51,8 @@
         </tr>
         <tr>
             <td>Status</td>
-            <td>: <span class="badge bg-{{ $order->status === 'pending_pickup' ? 'warning' : 'success' }}">
-                {{ $order->status === 'pending_pickup' ? 'Menunggu Diambil' : 'Selesai' }}
+            <td>: <span class="badge bg-{{ $order->status === 'pending' ? 'warning' : 'success' }}">
+                {{ $order->status === 'pending' ? 'Menunggu Diambil' : 'Selesai' }}
             </span></td>
         </tr>
         <tr>

@@ -17,7 +17,15 @@
         <td style="width: 10%;">{{ $loop->iteration }}</td>
         <td>{{ $user->name }}</td>
         <td>{{ $user->username }}</td>
-        <td>{{ $user->role == 'cashier' ? 'Kasir' : ($user->role == 'superadmin' ? 'Super Admin' : 'Admin') }}</td>
+        <td>
+          @if ($user->role == 'cashier')
+            Kasir
+          @elseif ($user->role == 'svp' || $user->role == 'supervisor')
+            Supervisor
+          @else
+            Admin
+          @endif
+        </td>
         <td>{{ $user->position ? $user->position : '-' }}</td>
         @if ($type != 'export')
           <td style="width: 25%;" class="text-center">

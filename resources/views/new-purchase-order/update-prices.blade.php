@@ -27,6 +27,19 @@
                 </div>
                 @endif
 
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <h6 class="alert-heading mb-2">
+                        <i class="fas fa-info-circle me-2"></i>Instruksi Update Harga
+                    </h6>
+                    <ul class="mb-0 ms-3">
+                        <li><strong>Wajib:</strong> Isi harga satuan untuk SEMUA item</li>
+                        <li><strong>Langkah 1:</strong> Simulkan harga untuk setiap item menggunakan tombol "Simpan Perubahan"</li>
+                        <li><strong>Langkah 2:</strong> Setelah semua harga terisi, klik "Konfirmasi Semua Harga" untuk final</li>
+                        <li><strong>Catatan:</strong> Harga tidak dapat berubah setelah dikonfirmasi. Pastikan data akurat!</li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
                 <form action="{{ route('new-purchase-orders.prices.update', $po->id) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -130,7 +143,8 @@
                                 name="action" 
                                 value="confirm" 
                                 class="btn btn-success"
-                                onclick="return confirm('Yakin ingin mengkonfirmasi semua harga? Status akan berubah menjadi final setelah dikonfirmasi.')">
+                                id="confirmBtn"
+                                onclick="return validateAndConfirmPrices()">
                             <i class="fas fa-check-circle me-2"></i>Konfirmasi Semua Harga
                         </button>
                     </div>
@@ -152,6 +166,72 @@
                 grandTotal += (parseFloat(input.value) || 0) * qty;
             });
             document.getElementById('grandTotal').innerText = grandTotal.toLocaleString('id-ID');
+            
+            // Update button state
+            updateConfirmButtonState();
         }
+        
+        function updateConfirmButtonState() {
+            const confirmBtn = document.getElementById('confirmBtn');
+            const priceInputs = document.querySelectorAll('input[name$="[unit_price]"]');
+            let allPricesFilled = true;
+            let hasZeroPrice = false;
+            
+            priceInputs.forEach(input => {
+                const value = parseFloat(input.value);
+                if (!value || value === '' || isNaN(value)) {
+                    allPricesFilled = false;
+                }
+                if (value === 0) {
+                    hasZeroPrice = true;
+                }
+            });
+            
+            if (allPricesFilled && !hasZeroPrice) {
+                confirmBtn.disabled = false;
+                confirmBtn.title = 'Klik untuk mengkonfirmasi semua harga';
+            } else {
+                confirmBtn.disabled = true;
+                if (!allPricesFilled) {
+                    confirmBtn.title = 'Semua item harus memiliki harga sebelum bisa dikonfirmasi';
+                } else if (hasZeroPrice) {
+                    confirmBtn.title = 'Harga tidak boleh 0 untuk item manapun';
+                }
+            }
+        }
+        
+        function validateAndConfirmPrices() {
+            const priceInputs = document.querySelectorAll('input[name$="[unit_price]"]');
+            let itemsWithoutPrice = [];
+            let itemsWithZeroPrice = [];
+            
+            priceInputs.forEach((input, index) => {
+                const row = input.closest('tr');
+                const itemName = row.querySelector('td:first-child p').textContent;
+                const value = parseFloat(input.value);
+                
+                if (!value || value === '' || isNaN(value)) {
+                    itemsWithoutPrice.push(itemName);
+                }
+                if (value === 0) {
+                    itemsWithZeroPrice.push(itemName);
+                }
+            });
+            
+            if (itemsWithoutPrice.length > 0) {
+                alert('❌ Gagal mengkonfirmasi harga.\n\nItem berikut belum memiliki harga:\n- ' + itemsWithoutPrice.join('\n- '));
+                return false;
+            }
+            
+            if (itemsWithZeroPrice.length > 0) {
+                alert('❌ Gagal mengkonfirmasi harga.\n\nHarga tidak boleh 0 (nol) untuk item:\n- ' + itemsWithZeroPrice.join('\n- '));
+                return false;
+            }
+            
+            return confirm('✓ Konfirmasi Harga\n\nYakin ingin mengkonfirmasi semua harga?\n\n⚠️ Harga tidak dapat diubah setelah dikonfirmasi. Pastikan semua data sudah akurat.');
+        }
+        
+        // Initialize button state on page load
+        document.addEventListener('DOMContentLoaded', updateConfirmButtonState);
     </script>
 </x-layout>

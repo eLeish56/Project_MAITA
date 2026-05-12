@@ -9,7 +9,6 @@
       @endif
       <div class="card">
         <div class="card-header">
-          <x-export-button></x-export-button>
           <a class="btn btn-primary float-end rounded-2" href="{{ route('category.create') }}" tabindex="1">Tambah
             Kategori</a>
         </div>
@@ -35,9 +34,5 @@
 
       $('input[type="search"]').focus();
     });
-
-    function exportData(type) {
-      window.location.href = "/category/export?type=" + type;
-    }
   </script>
 </x-layout>

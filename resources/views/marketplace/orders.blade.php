@@ -109,7 +109,7 @@
                                                 {{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}
                                             </td>
                                             <td>
-                                                @if($order->status === 'pending_pickup')
+                                                @if($order->status === 'pending')
                                                     <span class="badge rounded-pill bg-warning text-dark status-badge">
                                                         <i class="fas fa-clock me-1"></i>
                                                         Menunggu Diambil
@@ -131,11 +131,22 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="{{ route('marketplace.order.show', ['code' => $order->code]) }}" 
-                                                   class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-eye me-1"></i>
-                                                    Detail
-                                                </a>
+                                                <div class="btn-group btn-group-sm gap-1" role="group">
+                                                    <a href="{{ route('marketplace.order.show', ['code' => $order->code]) }}" 
+                                                       class="btn btn-primary">
+                                                        <i class="fas fa-eye me-1"></i>
+                                                        Detail
+                                                    </a>
+                                                    @if($order->status === 'pending')
+                                                        <button type="button" class="btn btn-danger" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#cancelModal{{ $order->id }}"
+                                                                title="Batalkan pesanan ini">
+                                                            <i class="fas fa-times me-1"></i>
+                                                            Batalkan
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -144,6 +155,67 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Cancel Modals for each order -->
+                @foreach($orders as $order)
+                    @if($order->status === 'pending')
+                    <div class="modal fade" id="cancelModal{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content border-danger">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Batalkan Pesanan
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form action="{{ route('marketplace.order.cancel') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="order_code" value="{{ $order->code }}">
+                                    
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <p class="mb-2">
+                                                <strong>Kode Pesanan:</strong> 
+                                                <span class="text-primary">{{ $order->code }}</span>
+                                            </p>
+                                            <p class="mb-3 text-muted small">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Pesanan yang dibatalkan tidak dapat dikembalikan. Stok barang akan dikembalikan ke inventory.
+                                            </p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="reason{{ $order->id }}" class="form-label">
+                                                <i class="fas fa-comment me-1"></i>
+                                                Alasan Pembatalan
+                                            </label>
+                                            <textarea class="form-control" 
+                                                      id="reason{{ $order->id }}" 
+                                                      name="reason"
+                                                      rows="3" 
+                                                      placeholder="Jelaskan alasan mengapa Anda ingin membatalkan pesanan ini..."
+                                                      required></textarea>
+                                            <small class="text-muted d-block mt-1">
+                                                Alasan akan membantu kami meningkatkan layanan. (Max 255 karakter)
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            <i class="fas fa-times me-1"></i>
+                                            Jangan Batalkan
+                                        </button>
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-trash me-1"></i>
+                                            Ya, Batalkan Pesanan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                @endforeach
             @endif
 
         </div>

@@ -50,7 +50,13 @@
                 <label for="" class="col-md-4 col-form-label"><b>Hak Akses</b></label>
                 <div class="col-md-8">
                   <input type="text" class="form-control"
-                    value="{{ $user->role == 'cashier' ? 'Kasir' : Str::ucfirst($user->role) }}" readonly>
+                    value="@if ($user->role == 'cashier')
+Kasir
+@elseif ($user->role == 'svp' || $user->role == 'supervisor')
+Supervisor
+@else
+{{ Str::ucfirst($user->role) }}
+@endif" readonly>
                 </div>
               </div>
             </div>

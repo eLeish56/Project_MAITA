@@ -25,7 +25,7 @@ return new class extends Migration
         // Tabel inventory_batches di file yang sama
         Schema::create('inventory_batches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained('items')->onDelete('restrict');
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
             $table->decimal('qty_on_hand', 12, 2);
             $table->date('expiry_date')->nullable();
             $table->string('lot_code')->nullable();

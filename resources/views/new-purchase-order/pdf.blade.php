@@ -167,7 +167,9 @@
             Disetujui oleh,<br><br><br><br>
             _________________<br>
             {{ auth()->user()->name }}<br>
-            {{ auth()->user()->position ?? 'Supervisor' }}
+            <br>
+            Manager<br>
+            
         </div>
         <div class="signature-box">
             Diterima oleh,<br><br><br><br>

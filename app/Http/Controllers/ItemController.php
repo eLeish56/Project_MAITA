@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ItemController extends Controller
 {
@@ -191,5 +194,119 @@ class ItemController extends Controller
     $item->delete();
 
     return redirect()->route('item.index')->with('status', 'Barang berhasil dihapus');
+  }
+
+  /**
+   * Export items to Excel
+   */
+  public function export(Request $request)
+  {
+    try {
+      $type = $request->query('type', 'xlsx');
+      
+      // Get all items with category
+      $items = Item::with('category')->orderBy('name')->get();
+
+      // Create Excel
+      $spreadsheet = new Spreadsheet();
+      $sheet = $spreadsheet->getActiveSheet();
+      $sheet->setTitle('Daftar Barang');
+
+      // Document properties
+      $spreadsheet->getProperties()
+        ->setCreator('Teaching Factory')
+        ->setLastModifiedBy('Teaching Factory')
+        ->setTitle('Daftar Barang Teaching Factory')
+        ->setSubject('Daftar Barang');
+
+      // Header
+      $sheet->setCellValue('A1', 'DAFTAR BARANG TEACHING FACTORY');
+      $sheet->mergeCells('A1:G1');
+      $sheet->getStyle('A1')->applyFromArray([
+        'font' => [
+          'bold' => true,
+          'size' => 14,
+          'name' => 'Calibri',
+        ],
+        'alignment' => [
+          'horizontal' => Alignment::HORIZONTAL_CENTER,
+          'vertical' => Alignment::VERTICAL_CENTER,
+        ]
+      ]);
+      $sheet->getRowDimension(1)->setRowHeight(25);
+
+      // Column Headers
+      $headers = ['No', 'Nama Barang', 'Kode', 'Kategori', 'Harga Beli', 'Harga Jual', 'Stok'];
+      $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+      
+      foreach ($columns as $index => $column) {
+        $sheet->setCellValue($column . '3', $headers[$index]);
+      }
+
+      // Style headers
+      $sheet->getStyle('A3:G3')->applyFromArray([
+        'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+        'fill' => [
+          'fillType' => 'solid',
+          'startColor' => ['rgb' => '366092']
+        ],
+        'alignment' => [
+          'horizontal' => Alignment::HORIZONTAL_CENTER,
+          'vertical' => Alignment::VERTICAL_CENTER,
+        ]
+      ]);
+
+      // Data rows
+      $row = 4;
+      foreach ($items as $index => $item) {
+        $sheet->setCellValue('A' . $row, $index + 1);
+        $sheet->setCellValue('B' . $row, $item->name);
+        $sheet->setCellValue('C' . $row, $item->code);
+        $sheet->setCellValue('D' . $row, $item->category->name ?? '-');
+        $sheet->setCellValue('E' . $row, $item->cost_price);
+        $sheet->setCellValue('F' . $row, $item->selling_price);
+        $sheet->setCellValue('G' . $row, $item->stock);
+
+        $row++;
+      }
+
+      // Set column widths
+      $sheet->getColumnDimension('A')->setWidth(5);
+      $sheet->getColumnDimension('B')->setWidth(25);
+      $sheet->getColumnDimension('C')->setWidth(12);
+      $sheet->getColumnDimension('D')->setWidth(15);
+      $sheet->getColumnDimension('E')->setWidth(12);
+      $sheet->getColumnDimension('F')->setWidth(12);
+      $sheet->getColumnDimension('G')->setWidth(10);
+
+      // Format currency columns
+      $sheet->getStyle('E4:F' . ($row - 1))->getNumberFormat()->setFormatCode('Rp #,##0.00');
+
+      // Format data rows
+      $sheet->getStyle('A3:G' . ($row - 1))->applyFromArray([
+        'borders' => [
+          'allBorders' => [
+            'borderStyle' => 'thin',
+          ]
+        ],
+        'alignment' => [
+          'vertical' => Alignment::VERTICAL_CENTER,
+        ]
+      ]);
+
+      // Output Excel file
+      $writer = new Xlsx($spreadsheet);
+      $filename = 'Daftar_Barang_' . date('d_m_Y_His') . '.xlsx';
+      
+      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      header('Content-Disposition: attachment;filename="' . $filename . '"');
+      header('Cache-Control: max-age=0');
+      
+      $writer->save('php://output');
+      exit;
+
+    } catch (\Exception $e) {
+      return back()->with('error', 'Error generating export: ' . $e->getMessage());
+    }
   }
 }

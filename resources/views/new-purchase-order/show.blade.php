@@ -293,6 +293,16 @@
         <!-- Tombol Aksi -->
         <div class="mt-4">
             @if($po->status === 'draft')
+                <div class="alert alert-info mb-3">
+                    <strong><i class="fas fa-info-circle me-2"></i>Catatan Penting:</strong>
+                    <ul class="mb-0 ms-3 mt-2">
+                        <li>Sebelum mengirim PO ke supplier, SEMUA item harus memiliki harga yang sudah dikonfirmasi</li>
+                        <li>Klik "Update Harga" untuk mengisi atau merevisi harga item</li>
+                        <li>Pastikan nilai harga > 0 dan sesuai dengan kesepakatan supplier</li>
+                        <li>Setelah harga dikonfirmasi, tombol "Kirim ke Supplier" akan aktif</li>
+                    </ul>
+                </div>
+
                 @if(!$po->prices_confirmed)
                     <a href="{{ route('new-purchase-orders.prices.edit', $po->id) }}" class="btn btn-warning">
                         <i class="fas fa-edit"></i> Update Harga
@@ -301,8 +311,9 @@
 
                 <form action="{{ route('new-purchase-orders.mark-sent', $po->id) }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-primary" 
-                            onclick="return confirm('Tandai PO ini sebagai terkirim?')"
+                    <button type="submit" 
+                            class="btn btn-primary" 
+                            onclick="return confirm('Tandai PO ini sebagai terkirim ke supplier?\n\n⚠️ Pastikan semua harga sudah benar sebelum mengirim.')"
                             {{ !$po->prices_confirmed ? 'disabled' : '' }}>
                         <i class="fas fa-paper-plane"></i> Kirim ke Supplier
                     </button>
@@ -310,7 +321,7 @@
                 
                 @if(!$po->prices_confirmed)
                     <div class="text-danger mt-2">
-                        <small><i class="fas fa-exclamation-circle"></i> PO tidak dapat dikirim sebelum semua harga dikonfirmasi</small>
+                        <small><i class="fas fa-exclamation-circle me-2"></i>PO tidak dapat dikirim sebelum semua harga dikonfirmasi</small>
                     </div>
                 @endif
             @endif

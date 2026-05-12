@@ -118,8 +118,14 @@
         $('#email').val($(this).data('email'));
         $('#phone').val($(this).data('phone'));
         let role = $(this).data('role');
-        if ($(this).data('role') == 'cashier') role = 'Kasir';
-        $('#role').val(role.charAt(0).toUpperCase() + role.slice(1));
+        if (role == 'cashier') {
+          role = 'Kasir';
+        } else if (role == 'svp' || role == 'supervisor') {
+          role = 'Supervisor';
+        } else {
+          role = role.charAt(0).toUpperCase() + role.slice(1);
+        }
+        $('#role').val(role);
         $('#position').val($(this).data('position'));
         $('#picture').attr('src', '/assets/images/users/' + $(this).data('picture'));
       });
